@@ -1704,6 +1704,11 @@ if (isset($pdo) && $pdo) {
                 <i class="fa-solid fa-gear"></i>
                 <span>Cài đặt</span>
             </a>
+
+            <a href="logout.php" class="nav-item">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Đăng xuất</span>
+            </a>
         </nav>
 
         <div class="sidebar-footer">
@@ -1757,6 +1762,9 @@ if (isset($pdo) && $pdo) {
                         <div class="name"><?= htmlspecialchars($currentUser['name']) ?></div>
                         <div class="role"><i class="fa-solid fa-circle-check"></i> <?= htmlspecialchars($currentUser['role']) ?></div>
                     </div>
+                    <a href="logout.php" title="Đăng xuất" style="margin-left: 8px; color: var(--slate-400); display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.color='#EF4444'; this.style.backgroundColor='#FEE2E2';" onmouseout="this.style.color='var(--slate-400)'; this.style.backgroundColor='transparent';">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    </a>
                 </div>
             </div>
         </header>

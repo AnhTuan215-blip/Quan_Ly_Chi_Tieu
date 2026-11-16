@@ -6,7 +6,10 @@
  * ===================================================================
  */
 
-require_once __DIR__ . '/config.php';
+// Đảm bảo session được kích hoạt để hủy
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Xóa toàn bộ biến lưu trong session
 $_SESSION = [];
@@ -28,5 +31,14 @@ if (ini_get("session.use_cookies")) {
 // Hủy hoàn toàn phiên làm việc
 session_destroy();
 
-// Chuyển hướng người dùng về trang đăng nhập
-redirect('auth.php');
+// Nạp config để gọi hàm redirect chuẩn
+if (file_exists(__DIR__ . '/config.php')) {
+    require_once __DIR__ . '/config.php';
+}
+
+if (function_exists('redirect')) {
+    redirect('auth.php');
+} else {
+    header("Location: auth.php");
+    exit();
+}

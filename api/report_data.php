@@ -7,7 +7,11 @@
 require_once dirname(__DIR__) . '/config.php';
 
 // Kiểm tra phiên đăng nhập
-checkAuth();
+if (!isLoggedIn()) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập!'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
 
 $userId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : 1;
 $month = isset($_GET['month']) ? (int)$_GET['month'] : 10;

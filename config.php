@@ -264,8 +264,14 @@ function checkAuth() {
  * @param string $url Đường dẫn cần chuyển đến
  */
 function redirect($url) {
-    header("Location: " . $url);
-    exit();
+    if (!headers_sent()) {
+        header("Location: " . $url);
+        exit();
+    } else {
+        echo "<script>window.location.href='" . addslashes($url) . "';</script>";
+        echo "<noscript><meta http-equiv='refresh' content='0;url=" . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . "'></noscript>";
+        exit();
+    }
 }
 
 /**

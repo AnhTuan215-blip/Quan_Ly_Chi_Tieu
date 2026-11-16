@@ -7,16 +7,6 @@
 
 require_once __DIR__ . '/config.php';
 
-// Tự động gán người dùng mặc định nếu chưa có session để trang hoạt động mượt mà
-if (!isset($_SESSION['user_id'])) {
-    $_SESSION['user_id'] = 1;
-    $_SESSION['username'] = 'admin';
-    $_SESSION['full_name'] = 'Nguyễn Văn An';
-    $_SESSION['email'] = 'an.nguyen@email.com';
-    $_SESSION['membership_type'] = 'premium';
-    $_SESSION['avatar'] = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80';
-}
-
 // Bắt buộc xác thực người dùng
 checkAuth();
 
@@ -1899,7 +1889,7 @@ $activePage = 'settings';
                     <div class="user-name"><?= htmlspecialchars($currentUser['full_name'] ?? 'Nguyễn Văn An') ?></div>
                     <span class="user-role-badge">Tài khoản Premium</span>
                 </div>
-                <a href="auth.php?action=logout" class="btn-logout" title="Đăng xuất">
+                <a href="logout.php" class="btn-logout" title="Đăng xuất">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 </a>
             </div>
@@ -1933,7 +1923,7 @@ $activePage = 'settings';
                     <span class="badge-dot"></span>
                 </a>
 
-                <a href="auth.php?action=logout" class="icon-btn" title="Đăng xuất">
+                <a href="logout.php" class="icon-btn" title="Đăng xuất">
                     <i class="fa-solid fa-power-off"></i>
                 </a>
             </div>

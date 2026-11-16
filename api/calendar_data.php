@@ -18,7 +18,12 @@ if (file_exists($configPath)) {
 }
 
 // Kiểm tra phiên đăng nhập
-$userId = $_SESSION['user_id'] ?? 1;
+if (empty($_SESSION['user_id'])) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập!'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+$userId = (int)$_SESSION['user_id'];
 
 /**
  * Định dạng tiền tệ VND chuẩn
