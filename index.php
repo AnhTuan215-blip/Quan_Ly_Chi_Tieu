@@ -32,16 +32,16 @@ $todayDisplay = 'Thứ Ba, 24/10/2024';
 // Chỉ gán số liệu mẫu demo nếu người dùng là tài khoản demo 'admin' (id = 1) và DB chưa có giao dịch
 $isDemoAdmin = ($userId === 1);
 
-$totalAvailableBalance = $isDemoAdmin ? 148650000 : 0;
-$totalIncomeMonth = $isDemoAdmin ? 42500000 : 0;
-$fixedSalary = $isDemoAdmin ? 35000000 : 0;
-$bonusAndDividend = $isDemoAdmin ? 7500000 : 0;
-$totalExpenseMonth = $isDemoAdmin ? 18250000 : 0;
-$totalBudgetMonth = $isDemoAdmin ? 25000000 : 0;
-$budgetRemaining = $isDemoAdmin ? 6750000 : 0;
-$expenseRatio = $isDemoAdmin ? 42.9 : 0;
-$budgetUsedRatio = $isDemoAdmin ? 73.0 : 0;
-$netSavings = $isDemoAdmin ? 24250000 : 0;
+$totalAvailableBalance = 0;
+$totalIncomeMonth = 0;
+$fixedSalary = 0;
+$bonusAndDividend = 0;
+$totalExpenseMonth = 0;
+$totalBudgetMonth = 0;
+$budgetRemaining = 0;
+$expenseRatio = 0;
+$budgetUsedRatio = 0;
+$netSavings = 0;
 
 if ($pdo) {
     try {
@@ -1960,7 +1960,7 @@ if (empty($paymentMethodsList)) {
                 </div>
             </section>
 
-            <?php if ($isDemoAdmin): ?>
+            <?php if (false): ?>
             <!-- 3. Smart Alert Banner -->
             <section class="smart-alert-banner" id="smartAlertBanner">
                 <div class="alert-left">
@@ -2304,7 +2304,7 @@ if (empty($paymentMethodsList)) {
                     datasets: [
                         {
                             label: 'Thu vào',
-                            data: <?= $isDemoAdmin ? '[10, 28, 42.5, 22, 40]' : '[0, 0, 0, 0, 0]' ?>, // triệu VNĐ
+                            data: [0, 0, 0, 0, 0], // triệu VNĐ
                             borderColor: '#22C55E',
                             backgroundColor: gradientIncome,
                             borderWidth: 2.5,
@@ -2318,7 +2318,7 @@ if (empty($paymentMethodsList)) {
                         },
                         {
                             label: 'Chi ra',
-                            data: <?= $isDemoAdmin ? '[3.5, 7.8, 11.2, 14.5, 18.25]' : '[0, 0, 0, 0, 0]' ?>, // triệu VNĐ
+                            data: [0, 0, 0, 0, 0], // triệu VNĐ
                             borderColor: '#EF4444',
                             backgroundColor: gradientExpense,
                             borderWidth: 2.2,

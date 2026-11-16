@@ -35,19 +35,19 @@ $prevMonthText = sprintf("tháng %02d/%d", $prevMonth, $prevYear);
 // Dữ liệu mặc định (Chỉ tài khoản demo admin ID = 1 mới có số liệu mẫu demo nếu DB chưa có)
 $isDemoAdmin = ($userId === 1);
 
-$income = $isDemoAdmin ? 42500000 : 0;
-$incomeChange = $isDemoAdmin ? 12.0 : 0;
-$expense = $isDemoAdmin ? 18250000 : 0;
-$expenseChange = $isDemoAdmin ? -5.0 : 0;
-$surplus = $isDemoAdmin ? 24250000 : 0;
-$surplusRatio = $isDemoAdmin ? 57.1 : 0;
-$savingsRate = $isDemoAdmin ? 57.1 : 0;
-$spendingRate = $isDemoAdmin ? 45.0 : 0;
-$targetExceeded = $isDemoAdmin ? 12.1 : 0;
+$income = 0;
+$incomeChange = 0;
+$expense = 0;
+$expenseChange = 0;
+$surplus = 0;
+$surplusRatio = 0;
+$savingsRate = 0;
+$spendingRate = 0;
+$targetExceeded = 0;
 
 // Danh mục chi tiêu & hạn mức ngân sách
 $categories = [];
-if ($isDemoAdmin) {
+if (false) {
     $categories = [
         [
             'name' => 'Ăn uống',
@@ -124,18 +124,18 @@ if ($isDemoAdmin) {
     ];
 }
 
-$totalBudget = $isDemoAdmin ? 20500000 : 0;
+$totalBudget = 0;
 $budgetRemaining = max(0, $totalBudget - $expense);
 
 // Dữ liệu 6 tháng gần nhất
 $sixMonthsData = [
     'labels' => ['T5', 'T6', 'T7', 'T8', 'T9', 'T10 (Nay)'],
-    'income' => $isDemoAdmin ? [36500000, 38000000, 40500000, 41200000, 37950000, 42500000] : [0, 0, 0, 0, 0, 0],
-    'expense' => $isDemoAdmin ? [19800000, 20500000, 18900000, 19200000, 19210000, 18250000] : [0, 0, 0, 0, 0, 0],
-    'surplus' => $isDemoAdmin ? [16700000, 17500000, 21600000, 22000000, 18740000, 24250000] : [0, 0, 0, 0, 0, 0],
-    'avg_income' => $isDemoAdmin ? '39.8M đ/tháng' : '0 đ/tháng',
-    'avg_expense' => $isDemoAdmin ? '19.1M đ/tháng' : '0 đ/tháng',
-    'avg_savings_rate' => $isDemoAdmin ? '52.0%' : '0%'
+    'income' => [0, 0, 0, 0, 0, 0],
+    'expense' => [0, 0, 0, 0, 0, 0],
+    'surplus' => [0, 0, 0, 0, 0, 0],
+    'avg_income' => '0 đ/tháng',
+    'avg_expense' => '0 đ/tháng',
+    'avg_savings_rate' => '0%'
 ];
 
 // Nếu có kết nối MySQL thì truy vấn dữ liệu thực tế của chính người dùng
@@ -1758,9 +1758,15 @@ if (isset($pdo) && $pdo !== null) {
                     </div>
                     <div class="card-value"><?= number_format($savingsRate, 1) ?>%</div>
                     <div class="card-trend">
+                        <?php if ($targetExceeded > 0): ?>
                         <span class="badge-target">
                             <i class="fa-solid fa-circle-check"></i> Vượt mục tiêu +<?= number_format($targetExceeded, 1) ?>%
                         </span>
+                        <?php else: ?>
+                        <span class="badge-target" style="background: var(--gray-100); color: var(--gray-600);">
+                            <i class="fa-solid fa-minus"></i> Chưa có dữ liệu
+                        </span>
+                        <?php endif; ?>
                     </div>
                     <div class="spending-ratio-info">
                         <i class="fa-solid fa-chart-pie"></i>

@@ -175,7 +175,7 @@ if ($pdo) {
     } catch (Exception $e) {}
 }
 
-if (empty($recentTransactions) && $isDemoAdmin) {
+if (false) {
     $recentTransactions = [
         [
             'id' => 101,

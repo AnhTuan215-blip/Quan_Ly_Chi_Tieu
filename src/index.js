@@ -469,10 +469,10 @@ export default {
 
     // 5.5. Trang chủ Dashboard (index.php hoặc /)
     if (url.pathname === "/" || url.pathname.endsWith("/index.php")) {
-      let totalBalance = 65650000;
-      let totalIncome = 57200000;
-      let totalExpense = 18250000;
-      let totalBudget = 25000000;
+      let totalBalance = 0;
+      let totalIncome = 0;
+      let totalExpense = 0;
+      let totalBudget = 0;
 
       try {
         if (env.DB) {
@@ -484,6 +484,9 @@ export default {
 
           const exp = await env.DB.prepare("SELECT SUM(amount) as total FROM transactions WHERE type IN ('expense', 'chi_tieu')").first();
           if (exp && exp.total !== null) totalExpense = Number(exp.total);
+
+          const bdg = await env.DB.prepare("SELECT SUM(amount) as total FROM budgets WHERE is_active = 1").first();
+          if (bdg && bdg.total !== null) totalBudget = Number(bdg.total);
         }
       } catch (e) {
         console.error("Lỗi lấy dữ liệu D1:", e);
@@ -499,6 +502,8 @@ export default {
         .replaceAll("{{TOTAL_INCOME_FORMATTED}}", formatMoney(totalIncome))
         .replaceAll("{{TOTAL_EXPENSE_RAW}}", String(totalExpense))
         .replaceAll("{{TOTAL_EXPENSE_FORMATTED}}", formatMoney(totalExpense))
+        .replaceAll("{{TOTAL_BUDGET_RAW}}", String(totalBudget))
+        .replaceAll("{{TOTAL_BUDGET_FORMATTED}}", formatMoney(totalBudget))
         .replaceAll("{{BUDGET_REMAINING_RAW}}", String(budgetRemaining))
         .replaceAll("{{BUDGET_REMAINING_FORMATTED}}", formatMoney(budgetRemaining))
         .replaceAll("{{NET_SAVINGS_RAW}}", String(netSavings))

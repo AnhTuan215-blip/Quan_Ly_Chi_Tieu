@@ -1827,13 +1827,13 @@ if (isset($pdo) && $pdo) {
                             <i class="fa-solid fa-calendar-check"></i>
                         </div>
                     </div>
-                    <div class="card-main-val" id="sumActiveDays"><?= $isDemoAdmin ? '22 / 31 ngày' : '0 / 31 ngày' ?></div>
+                    <div class="card-main-val" id="sumActiveDays">0 / 31 ngày</div>
                     <div class="card-progress-bar">
-                        <div class="card-progress-fill" id="sumActiveProgress" style="width: <?= $isDemoAdmin ? '71%' : '0%' ?>;"></div>
+                        <div class="card-progress-fill" id="sumActiveProgress" style="width: 0%;"></div>
                     </div>
                     <div class="card-footer-info">
-                        <span class="tag-pill tag-success"><i class="fa-solid fa-chart-line"></i> <?= $isDemoAdmin ? '71%' : '0%' ?></span>
-                        <span id="sumActiveRateText">Tỷ lệ phát sinh dòng tiền <?= $isDemoAdmin ? '71%' : '0%' ?></span>
+                        <span class="tag-pill tag-success"><i class="fa-solid fa-chart-line"></i> 0%</span>
+                        <span id="sumActiveRateText">Tỷ lệ phát sinh dòng tiền 0%</span>
                     </div>
                 </div>
 
@@ -1845,7 +1845,7 @@ if (isset($pdo) && $pdo) {
                             <i class="fa-solid fa-arrow-trend-down"></i>
                         </div>
                     </div>
-                    <div class="card-main-val val-red" id="sumMaxExpenseAmount"><?= $isDemoAdmin ? '-3.850.000 đ' : '0 đ' ?></div>
+                    <div class="card-main-val val-red" id="sumMaxExpenseAmount">0 đ</div>
                     <div class="card-footer-info" style="margin-top: 14px;">
                         <i class="fa-solid fa-circle-exclamation text-danger" style="font-size: 14px;"></i>
                         <span id="sumMaxExpenseDesc"><?= $isDemoAdmin ? '15/10/2024 • Phí bảo hiểm xe ô tô' : 'Chưa có chi tiêu' ?></span>
@@ -1860,7 +1860,7 @@ if (isset($pdo) && $pdo) {
                             <i class="fa-solid fa-calculator"></i>
                         </div>
                     </div>
-                    <div class="card-main-val" id="sumAvgDaily"><?= $isDemoAdmin ? '588.000 đ / ngày' : '0 đ / ngày' ?></div>
+                    <div class="card-main-val" id="sumAvgDaily">0 đ / ngày</div>
                     <div class="card-footer-info" style="margin-top: 14px;">
                         <span class="tag-pill tag-success" id="sumAvgComparison">
                             <i class="fa-solid fa-arrow-down"></i> <?= $isDemoAdmin ? 'Thấp hơn 12% so với tháng 9' : 'Chưa có dữ liệu chi tiêu' ?>

@@ -1738,13 +1738,13 @@
                             <i class="fa-solid fa-calendar-check"></i>
                         </div>
                     </div>
-                    <div class="card-main-val" id="sumActiveDays">22 / 31 ngày</div>
+                    <div class="card-main-val" id="sumActiveDays">0 / 31 ngày</div>
                     <div class="card-progress-bar">
-                        <div class="card-progress-fill" id="sumActiveProgress" style="width: 71%;"></div>
+                        <div class="card-progress-fill" id="sumActiveProgress" style="width: 0%;"></div>
                     </div>
                     <div class="card-footer-info">
-                        <span class="tag-pill tag-success"><i class="fa-solid fa-chart-line"></i> 71%</span>
-                        <span id="sumActiveRateText">Tỷ lệ phát sinh dòng tiền 71%</span>
+                        <span class="tag-pill tag-success"><i class="fa-solid fa-chart-line"></i> 0%</span>
+                        <span id="sumActiveRateText">Tỷ lệ phát sinh dòng tiền 0%</span>
                     </div>
                 </div>
 
@@ -1756,10 +1756,10 @@
                             <i class="fa-solid fa-arrow-trend-down"></i>
                         </div>
                     </div>
-                    <div class="card-main-val val-red" id="sumMaxExpenseAmount">-3.850.000 đ</div>
+                    <div class="card-main-val val-red" id="sumMaxExpenseAmount">0 đ</div>
                     <div class="card-footer-info" style="margin-top: 14px;">
                         <i class="fa-solid fa-circle-exclamation text-danger" style="font-size: 14px;"></i>
-                        <span id="sumMaxExpenseDesc">15/10/2024 • Phí bảo hiểm xe ô tô</span>
+                        <span id="sumMaxExpenseDesc">Chưa có chi tiêu lớn</span>
                     </div>
                 </div>
 
@@ -1771,10 +1771,10 @@
                             <i class="fa-solid fa-calculator"></i>
                         </div>
                     </div>
-                    <div class="card-main-val" id="sumAvgDaily">588.000 đ / ngày</div>
+                    <div class="card-main-val" id="sumAvgDaily">0 đ / ngày</div>
                     <div class="card-footer-info" style="margin-top: 14px;">
                         <span class="tag-pill tag-success" id="sumAvgComparison">
-                            <i class="fa-solid fa-arrow-down"></i> Thấp hơn 12% so với tháng 9                        </span>
+                            <i class="fa-solid fa-arrow-down"></i> Chưa có dữ liệu                        </span>
                     </div>
                 </div>
 
@@ -1841,15 +1841,15 @@
                                 <span id="weeklyTitle">Tuần 4 (21/10 - 27/10)</span>
                             </div>
                             <span class="badge-status-stable" id="weeklyBadge">
-                                <i class="fa-solid fa-circle-check"></i> Ổn định
+                                <i class="fa-solid fa-circle-check"></i> Chưa có dữ liệu
                             </span>
                         </div>
                         <div class="weekly-desc" id="weeklyDesc">
-                            Tổng chi tiêu 5 ngày đầu tuần: 1.312.000 đ • Đạt 45% định mức tuần
+                            Chưa có giao dịch phát sinh trong tuần
                         </div>
                         <div class="weekly-progress-wrap">
                             <div class="weekly-progress-bar">
-                                <div class="weekly-progress-fill" id="weeklyProgressFill" style="width: 45%;"></div>
+                                <div class="weekly-progress-fill" id="weeklyProgressFill" style="width: 0%;"></div>
                             </div>
                         </div>
                     </div>
@@ -1875,21 +1875,21 @@
                         <div class="day-stat-boxes">
                             <div class="mini-stat-box box-income">
                                 <span class="box-label">Tổng thu</span>
-                                <span class="box-val" id="dayBoxIncome">+5.000.000 đ</span>
+                                <span class="box-val" id="dayBoxIncome">0 đ</span>
                             </div>
                             <div class="mini-stat-box box-expense">
                                 <span class="box-label">Tổng chi</span>
-                                <span class="box-val" id="dayBoxExpense">-727.000 đ</span>
+                                <span class="box-val" id="dayBoxExpense">0 đ</span>
                             </div>
                             <div class="mini-stat-box box-diff">
                                 <span class="box-label">Chênh lệch</span>
-                                <span class="box-val" id="dayBoxDiff">+4.273.000 đ</span>
+                                <span class="box-val" id="dayBoxDiff">0 đ</span>
                             </div>
                         </div>
 
                         <!-- Tiêu đề danh sách giao dịch -->
                         <div class="tx-list-header">
-                            <span class="tx-list-title" id="txCountHeading">5 GIAO DỊCH PHÁT SINH</span>
+                            <span class="tx-list-title" id="txCountHeading">0 GIAO DỊCH PHÁT SINH</span>
                             <select class="sort-select" id="sortSelect" onchange="sortCurrentTransactions(this.value)">
                                 <option value="time">Sắp xếp theo giờ</option>
                                 <option value="amount_desc">Số tiền giảm dần</option>
@@ -1915,16 +1915,11 @@
                                     <i class="fa-regular fa-bell"></i>
                                     <span>Nhắc hẹn thanh toán sắp tới</span>
                                 </div>
-                                <span class="reminder-badge-count" id="reminderCountBadge">2</span>
+                                <span class="reminder-badge-count" id="reminderCountBadge">0</span>
                             </div>
                             <div class="reminder-items-list" id="reminderItemsList">
                                 <div class="reminder-single-item">
-                                    <span>25/10: Hóa đơn tiền điện sinh hoạt EVN (1.450.000 đ)</span>
-                                    <span class="item-due">Còn 1 ngày</span>
-                                </div>
-                                <div class="reminder-single-item">
-                                    <span>28/10: Sao kê thẻ tín dụng Techcombank (5.200.000 đ)</span>
-                                    <span class="item-due">Còn 4 ngày</span>
+                                    <span style="color: #94A3B8;">Chưa có lịch nhắc hẹn thanh toán nào</span>
                                 </div>
                             </div>
                         </div>

@@ -150,7 +150,7 @@ $defaultOctData = [
 $isDemoAdmin = ($userId === 1);
 
 // Khởi tạo biến trả về (Chỉ tài khoản demo admin ID = 1 mới hiển thị số liệu mẫu nếu chưa có dữ liệu)
-if ($isDemoAdmin) {
+if (false) {
     $reportData = $defaultOctData;
 } else {
     $reportData = [
@@ -198,7 +198,7 @@ if ($isDemoAdmin) {
 if (isset($pdo) && $pdo !== null) {
     try {
         // Chỉ tài khoản demo admin ID = 1 mới auto-seed nếu trống
-        if ($isDemoAdmin && $month === 10 && $year === 2024) {
+        if (false) {
             $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM `transactions` WHERE user_id = ? AND MONTH(transaction_date) = 10 AND YEAR(transaction_date) = 2024");
             $stmtCheck->execute([$userId]);
             $txCount = (int)$stmtCheck->fetchColumn();

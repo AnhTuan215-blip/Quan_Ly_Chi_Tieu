@@ -319,7 +319,7 @@ if ($pdo) {
 }
 
 // Fallback: chỉ tài khoản demo admin (user_id = 1) mới hiển thị danh sách mẫu nếu DB trống
-if (empty($items) && $userId === 1) {
+if (false) {
     $filteredSamples = array_filter($sampleTransactions, function($tx) use ($typeFilter, $search) {
         if ($typeFilter === 'thu_nhap' || $typeFilter === 'income') {
             if ($tx['type'] !== 'thu_nhap') return false;

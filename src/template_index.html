@@ -1757,10 +1757,10 @@
                     <div class="card-amount money-value" data-raw="{{TOTAL_BALANCE_RAW}}">{{TOTAL_BALANCE_FORMATTED}}</div>
                     <div class="card-bottom">
                         <div class="bottom-row-flex">
-                            <span class="badge-growth">
-                                <i class="fa-solid fa-arrow-up"></i> +5.2%
+                            <span class="badge-growth" style="color: #94A3B8;">
+                                <i class="fa-solid fa-minus"></i> 0.0%
                             </span>
-                            <span>So với tháng 9</span>
+                            <span>Chưa có dữ liệu</span>
                         </div>
                     </div>
                 </div>
@@ -1777,11 +1777,11 @@
                     <div class="card-bottom">
                         <div class="bottom-row-flex">
                             <span>Lương cố định</span>
-                            <span class="money-value" data-raw="35000000">35.000.000 đ</span>
+                            <span class="money-value" data-raw="0">0 đ</span>
                         </div>
                         <div class="bottom-row-flex" style="margin-top: 3px;">
-                            <span>Thưởng DA & Cổ tức</span>
-                            <span class="text-underline-red money-value" data-raw="7500000">7.500.000 đ</span>
+                            <span>Thu nhập khác</span>
+                            <span class="money-value" data-raw="0">0 đ</span>
                         </div>
                     </div>
                 </div>
@@ -1794,14 +1794,14 @@
                             <i class="fa-solid fa-arrow-trend-down"></i>
                         </div>
                     </div>
-                    <div class="card-amount text-danger money-value" data-raw="12389000">12.389.000 đ</div>
+                    <div class="card-amount text-danger money-value" data-raw="{{TOTAL_EXPENSE_RAW}}">{{TOTAL_EXPENSE_FORMATTED}}</div>
                     <div class="card-bottom">
                         <div class="bottom-row-flex">
                             <span>Tỷ lệ chi tiêu / thu nhập</span>
-                            <span style="font-weight: 700; color: #EF4444;">21.7%</span>
+                            <span style="font-weight: 700; color: #10B981;">0.0%</span>
                         </div>
                         <div class="mini-progress-track">
-                            <div class="mini-progress-fill" style="width: 21.7%; background-color: #EF4444;"></div>
+                            <div class="mini-progress-fill" style="width: 0%; background-color: #10B981;"></div>
                         </div>
                     </div>
                 </div>
@@ -1812,21 +1812,21 @@
                         <span class="card-label">HẠN MỨC CÒN KHẢ DỤNG</span>
                         <span class="badge-safe">An toàn</span>
                     </div>
-                    <div class="card-amount money-value" data-raw="12611000">12.611.000 đ</div>
+                    <div class="card-amount money-value" data-raw="{{BUDGET_REMAINING_RAW}}">{{BUDGET_REMAINING_FORMATTED}}</div>
                     <div class="card-bottom">
                         <div class="bottom-row-flex">
-                            <span>Đã dùng (Hạn mức 25.000.000 đ)</span>
-                            <span style="font-weight: 700; color: #D97706;">49.6%</span>
+                            <span>Đã dùng (Hạn mức {{TOTAL_BUDGET_FORMATTED}})</span>
+                            <span style="font-weight: 700; color: #10B981;">0.0%</span>
                         </div>
                         <div class="mini-progress-track">
-                            <div class="mini-progress-fill" style="width: 49.6%; background: linear-gradient(90deg, #F59E0B, #EF4444);"></div>
+                            <div class="mini-progress-fill" style="width: 0%; background-color: #10B981;"></div>
                         </div>
                     </div>
                 </div>
             </section>
 
                         <!-- 3. Smart Alert Banner -->
-            <section class="smart-alert-banner" id="smartAlertBanner">
+            <section class="smart-alert-banner" id="smartAlertBanner" style="display: none;">
                 <div class="alert-left">
                     <div class="alert-icon-square">
                         <i class="fa-solid fa-bolt"></i>
@@ -1834,7 +1834,7 @@
                     <div class="alert-text-group">
                         <div class="alert-heading">Cảnh báo thông minh: Danh mục Ăn uống</div>
                         <div class="alert-desc">
-                            Đã chạm <strong>82%</strong> hạn mức ngân sách tháng (4.100.000 đ / 5.000.000 đ). Còn lại 7 ngày.
+                            Đã chạm <strong>0%</strong> hạn mức ngân sách tháng (0 đ / 0 đ).
                         </div>
                     </div>
                 </div>
@@ -1877,7 +1877,7 @@
                     <div class="chart-footer-row">
                         <div>
                             <span class="net-savings-text">Dòng tiền ròng tích lũy (Net Savings): </span>
-                            <span class="net-savings-val money-value" data-raw="44811000">+44.811.000 đ</span>
+                            <span class="net-savings-val money-value" data-raw="{{NET_SAVINGS_RAW}}">{{NET_SAVINGS_FORMATTED}}</span>
                         </div>
                         <a href="reports.php" class="link-arrow">
                             <span>Chi tiết biểu đồ</span>
@@ -1977,7 +1977,7 @@
                 <!-- Filter Tabs & Search Input -->
                 <div class="tx-filters-bar">
                     <div class="tx-tabs-group" id="filterTabsGroup">
-                        <button class="tx-tab-btn active" data-filter="all">Tất cả (6)</button>
+                        <button class="tx-tab-btn active" data-filter="all">Tất cả (0)</button>
                         <button class="tx-tab-btn" data-filter="income">Khoản thu (+)</button>
                         <button class="tx-tab-btn" data-filter="expense">Khoản chi (-)</button>
                         <button class="tx-tab-btn" data-filter="recurring">Giao dịch định kỳ</button>
@@ -2185,7 +2185,7 @@
                     datasets: [
                         {
                             label: 'Thu vào',
-                            data: [10, 28, 42.5, 22, 40], // triệu VNĐ
+                            data: [0, 0, 0, 0, 0], // triệu VNĐ
                             borderColor: '#22C55E',
                             backgroundColor: gradientIncome,
                             borderWidth: 2.5,
@@ -2199,7 +2199,7 @@
                         },
                         {
                             label: 'Chi ra',
-                            data: [3.5, 7.8, 11.2, 14.5, 18.25], // triệu VNĐ
+                            data: [0, 0, 0, 0, 0], // triệu VNĐ
                             borderColor: '#EF4444',
                             backgroundColor: gradientExpense,
                             borderWidth: 2.2,
