@@ -197,115 +197,7 @@ function getOct2024StaticData() {
  * Tự động đồng bộ seed data cho Tháng 10/2024 vào MySQL nếu bảng transactions chưa đủ dữ liệu
  */
 function ensureOctoberSeedData($pdo, $userId) {
-    if (!$pdo || $userId !== 1) return;
-    try {
-        $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM `transactions` WHERE `user_id` = ? AND `transaction_date` BETWEEN '2024-10-01' AND '2024-10-31'");
-        $checkStmt->execute([$userId]);
-        $count = (int)$checkStmt->fetchColumn();
-
-        if ($count < 10) {
-            // Lấy danh mục hợp lệ
-            $catMap = [];
-            $cats = $pdo->query("SELECT id, name FROM categories")->fetchAll();
-            foreach ($cats as $c) {
-                $catMap[$c['name']] = $c['id'];
-            }
-            // Lấy phương thức thanh toán hợp lệ
-            $pmMap = [];
-            $pms = $pdo->query("SELECT id, name FROM payment_methods")->fetchAll();
-            foreach ($pms as $p) {
-                $pmMap[$p['name']] = $p['id'];
-            }
-
-            $catEat = $catMap['Ăn uống'] ?? 1;
-            $catShop = $catMap['Mua sắm'] ?? 2;
-            $catCar = $catMap['Di chuyển'] ?? 3;
-            $catBill = $catMap['Hóa đơn & Dịch vụ'] ?? 4;
-            $catSalary = $catMap['Lương thưởng'] ?? ($catMap['Tiền lương'] ?? 9);
-
-            $pmTech = $pmMap['Techcombank Visa Signature'] ?? 1;
-            $pmMomo = $pmMap['Ví Điện Tử MoMo'] ?? ($pmMap['Ví MoMo'] ?? 2);
-            $pmCash = $pmMap['Tiền mặt ví cá nhân'] ?? ($pmMap['Tiền mặt'] ?? 3);
-
-            $seedTxs = [
-                ['thu_nhap', $catSalary, $pmTech, 45000000, '2024-10-01', '08:30:00', 'Lương tháng 09/2024', 'Chuyển khoản lương công ty FinTrack', 1],
-                ['chi_tieu', $catEat, $pmMomo, 85000, '2024-10-02', '07:45:00', 'Ăn sáng Phở Thìn & Cà phê', 'Bát phở bò tái lăn và cafe đen đá', 0],
-                ['chi_tieu', $catBill, $pmTech, 1450000, '2024-10-03', '12:15:00', 'Thanh toán điện nước tháng 09', 'Hóa đơn tiền điện EVN và nước sạch Hà Nội', 0],
-                ['chi_tieu', $catShop, $pmTech, 799000, '2024-10-05', '18:20:00', 'Mua áo sơ mi Uniqlo', 'Chi nhánh Vincom Center Metropolis', 0],
-                ['chi_tieu', $catCar, $pmCash, 650000, '2024-10-07', '09:10:00', 'Đổ xăng xe ô tô Petrolimex', 'Trạm xăng số 18 đường Láng Hạ', 0],
-                ['chi_tieu', $catEat, $pmCash, 95000, '2024-10-08', '08:30:00', 'Cà phê sáng cùng đồng nghiệp', 'Highlands Coffee Liễu Giai', 0],
-                ['thu_nhap', $catSalary, $pmTech, 4200000, '2024-10-10', '11:30:00', 'Lãi cổ tức quỹ đầu tư', 'Chốt lời danh mục cổ tức quý 3 MB Capital', 0],
-                ['chi_tieu', $catEat, $pmTech, 1280000, '2024-10-12', '19:30:00', 'Ăn tối nhà hàng Haidilao Hotpot', 'Tiệc lẩu cuối tuần cùng gia đình', 0],
-                ['chi_tieu', $catShop, $pmTech, 2100000, '2024-10-14', '14:00:00', 'Gói tập California Fitness 3 tháng', 'Gia hạn gói tập gym và yoga chuyên sâu', 0],
-                ['chi_tieu', $catCar, $pmTech, 3850000, '2024-10-15', '10:15:00', 'Phí bảo hiểm xe ô tô', 'Bảo hiểm thân vỏ và trách nhiệm dân sự PTI', 0],
-                ['chi_tieu', $catEat, $pmCash, 180000, '2024-10-16', '19:45:00', 'Bữa tối lẩu Tokbokki', 'Ăn tối cùng nhóm bạn', 0],
-                ['chi_tieu', $catEat, $pmMomo, 320000, '2024-10-18', '20:45:00', 'Vé xem phim CGV IMAX & bắp nước', 'Phim khoa học viễn tưởng cuối tuần', 0],
-                ['chi_tieu', $catShop, $pmTech, 2500000, '2024-10-20', '16:30:00', 'Quà tặng Ngày Phụ nữ Việt Nam 20/10', 'Bộ quà mỹ phẩm và hoa tươi tặng mẹ và vợ', 0],
-                ['chi_tieu', $catEat, $pmMomo, 120000, '2024-10-21', '15:10:00', 'Bánh ngọt & trà sữa chiều', 'Teabreak chiều tại văn phòng', 0],
-                ['chi_tieu', $catBill, $pmMomo, 275000, '2024-10-22', '08:15:00', 'Cước Internet cáp quang Viettel', 'Gói NetPlus tốc độ cao tháng 10/2024', 1],
-                ['chi_tieu', $catShop, $pmTech, 190000, '2024-10-23', '11:20:00', 'Mua phụ kiện cáp sạc Type-C', 'Cáp sạc nhanh Baseus chính hãng', 0],
-                // 5 giao dịch ngày 24/10/2024:
-                ['thu_nhap', $catSalary, $pmTech, 5000000, '2024-10-24', '09:15:00', 'Thu tiền hợp đồng freelancer thiết kế web', 'Tất toán gói thiết kế giao diện landing page cho đối tác', 0],
-                ['chi_tieu', $catEat, $pmMomo, 75000, '2024-10-24', '11:45:00', 'Ăn trưa bún chả & cà phê Highlands', 'Bát phở bò tái lăn và cafe đen đá', 0],
-                ['chi_tieu', $catShop, $pmTech, 352000, '2024-10-24', '17:30:00', 'Mua sắm thực phẩm siêu thị WinMart', 'Rau củ quả tươi sạch, sữa chua Hy Lạp và nước khoáng', 0],
-                ['chi_tieu', $catBill, $pmMomo, 100000, '2024-10-24', '14:20:00', 'Nạp tiền gói cước di động Viettel 4G', 'Gói cước V120N data 4G tốc độ cao 30 ngày', 0],
-                ['chi_tieu', $catEat, $pmCash, 200000, '2024-10-24', '15:50:00', 'Cà phê chiều gặp gỡ đối tác', 'Bàn kế hoạch triển khai chiến dịch tài chính cuối năm', 0],
-                // Ngày tiếp theo
-                ['thu_nhap', $catSalary, $pmTech, 8000000, '2024-10-25', '15:00:00', 'Thưởng hiệu suất dự án Q3', 'Khen thưởng hoàn thành vượt chỉ tiêu dự án', 0],
-                ['chi_tieu', $catCar, $pmCash, 850000, '2024-10-27', '10:20:00', 'Bảo dưỡng xe máy Honda định kỳ', 'Thay dầu máy Motul và bảo trì nhông xích', 0],
-                ['chi_tieu', $catShop, $pmMomo, 680000, '2024-10-29', '17:00:00', 'Mua đèn bàn làm việc và decor', 'Đèn chống cận thị và phụ kiện bàn làm việc', 0],
-                ['chi_tieu', $catEat, $pmCash, 130000, '2024-10-30', '19:15:00', 'Ăn tối phở cuốn Ngũ Xã', 'Bữa tối nhẹ cùng đồng nghiệp', 0],
-                ['chi_tieu', $catEat, $pmTech, 950000, '2024-10-31', '12:00:00', 'Tiệc liên hoan sinh nhật & tổng kết tháng', 'Bữa trưa gặp mặt đội nhóm kinh doanh', 0]
-            ];
-
-            // Thử kiểm tra tên cột type trong bảng transactions
-            $colCheck = $pdo->query("SHOW COLUMNS FROM transactions LIKE 'notes'")->fetch();
-            $noteCol = $colCheck ? 'notes' : 'note';
-
-            $insertSql = "INSERT INTO `transactions` 
-                (`user_id`, `type`, `category_id`, `payment_method_id`, `amount`, `transaction_date`, `transaction_time`, `description`, `{$noteCol}`, `is_recurring`) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $stmt = $pdo->prepare($insertSql);
-
-            foreach ($seedTxs as $tx) {
-                // Chuyển loại nếu bảng dùng ENUM('expense', 'income')
-                $tType = $tx[0];
-                try {
-                    $stmt->execute([
-                        $userId,
-                        $tType,
-                        $tx[1],
-                        $tx[2],
-                        $tx[3],
-                        $tx[4],
-                        $tx[5],
-                        $tx[6],
-                        $tx[7],
-                        $tx[8]
-                    ]);
-                } catch (Exception $ie) {
-                    // Nếu lỗi do ENUM ('expense','income') vs ('chi_tieu','thu_nhap')
-                    $altType = ($tType === 'chi_tieu') ? 'expense' : 'income';
-                    try {
-                        $stmt->execute([
-                            $userId,
-                            $altType,
-                            $tx[1],
-                            $tx[2],
-                            $tx[3],
-                            $tx[4],
-                            $tx[5],
-                            $tx[6],
-                            $tx[7],
-                            $tx[8]
-                        ]);
-                    } catch (Exception $ignored) {}
-                }
-            }
-        }
-    } catch (Exception $e) {
-        // Bỏ qua lỗi
-    }
+    return;
 }
 
 // Xử lý request
@@ -441,7 +333,7 @@ if (isset($_GET['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['date'])) 
     }
 
     // Nếu không có dữ liệu từ DB cho ngày 2024-10-24, chỉ tài khoản demo admin ID = 1 mới hiển thị mẫu
-    if (empty($transactions) && $selectedDate === '2024-10-24' && $userId === 1) {
+    if (false && empty($transactions) && $selectedDate === '2024-10-24') {
         $transactions = $staticData['transactions_2024_10_24'];
         $totalIncome = 5000000;
         $totalExpense = 727000;
@@ -467,7 +359,7 @@ if (isset($_GET['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['date'])) 
             'tx_count' => count($transactions)
         ],
         'transactions' => $transactions,
-        'upcoming_reminders' => ($userId === 1) ? $staticData['upcoming_reminders'] : []
+        'upcoming_reminders' => []
     ]);
     exit;
 }
@@ -486,7 +378,7 @@ $response = [
     'month' => $month,
     'year' => $year,
     'month_label' => "Tháng {$month}, {$year}",
-    'summary' => ($userId === 1) ? array_merge($staticData['summary'], ['total_days' => $totalDaysInMonth]) : [
+    'summary' => (false) ? array_merge($staticData['summary'], ['total_days' => $totalDaysInMonth]) : [
         'active_days' => 0,
         'total_days' => $totalDaysInMonth,
         'active_rate' => 0,
@@ -502,7 +394,7 @@ $response = [
             'comparison' => 'Chưa có dữ liệu chi tiêu'
         ]
     ],
-    'weekly' => ($userId === 1) ? $staticData['weekly'] : [
+    'weekly' => (false) ? $staticData['weekly'] : [
         'title' => 'Tuần này',
         'description' => 'Chưa có giao dịch phát sinh trong tuần',
         'percentage' => 0,
@@ -641,7 +533,7 @@ if (isset($pdo) && $pdo) {
 }
 
 // Nếu là tháng 10/2024 và DB chưa có, chỉ tài khoản demo admin ID = 1 mới hiển thị số liệu mẫu
-if (!$hasDbData && $month === 10 && $year === 2024 && $userId === 1) {
+if (false && !$hasDbData && $month === 10 && $year === 2024) {
     foreach ($staticData['days'] as $dStr => $val) {
         if (isset($response['days'][$dStr])) {
             $response['days'][$dStr] = array_merge($response['days'][$dStr], $val);
