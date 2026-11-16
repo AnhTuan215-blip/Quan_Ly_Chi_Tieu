@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        Đăng Ký Tài Khoản - FinTrack VN
+    </title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            navy: '#1B1F3B',
+                            dark: '#111427',
+                            card: '#22284E',
+                            accent: '#4F59E8',
+                            lightAccent: '#6366F1'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #111427;
+        }
+        .bg-radial-gradient {
+            background: radial-gradient(circle at 50% 0%, #2d336b 0%, #111427 75%);
+        }
+    </style>
+</head>
+<body class="bg-radial-gradient min-h-screen text-gray-100 flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md my-8">
+        <!-- Logo & Thương hiệu -->
+        <div class="text-center mb-6">
+            <a href="index.php" class="inline-block">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#4F59E8] to-[#06B6D4] shadow-lg shadow-indigo-500/30 mb-3">
+                    <i class="fa-solid fa-wallet text-2xl text-white"></i>
+                </div>
+                <h1 class="text-3xl font-extrabold tracking-tight text-white">
+                    FinTrack <span class="text-[#4F59E8]">VN</span>
+                </h1>
+                <p class="text-xs text-gray-400 mt-1 font-medium">
+                    Sổ Quản Lý Tài Chính & Chi Tiêu Thông Minh
+                </p>
+            </a>
+        </div>
+
+        <!-- Khung Card chính -->
+        <div class="bg-[#1B1F3B] border border-gray-700/60 rounded-3xl p-7 shadow-2xl backdrop-blur-sm relative overflow-hidden">
+            <!-- Nét trang trí viền trên -->
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#4F59E8] to-transparent"></div>
+
+            <!-- Header tab / Tiêu đề -->
+            <div class="flex items-center justify-between mb-5">
+                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                                            <i class="fa-solid fa-user-plus text-[#10B981]"></i>
+                        <span>Đăng Ký Tài Khoản</span>
+                                    </h2>
+
+                <div class="flex items-center gap-1">
+                    <a href="auth.php?mode=login" class="text-xs px-2.5 py-1 rounded-lg text-gray-400 hover:text-white transition">Đăng nhập</a>
+                    <a href="auth.php?mode=register" class="text-xs px-2.5 py-1 rounded-lg bg-[#10B981] text-white font-bold transition">Đăng ký</a>
+                </div>
+            </div>
+
+            {{ERROR_BLOCK}}
+            
+            <!-- Thông báo Thành công -->
+            
+            <!-- Hộp Giả Lập Email Gửi Trực Tiếp Trên Localhost (Nếu có email vừa phát sinh) -->
+            
+            <!-- ===================================================================
+                 VIEW 1: FORM ĐĂNG NHẬP (LOGIN)
+                 =================================================================== -->
+                            <form action="auth.php?mode=register" method="POST" class="space-y-3.5">
+                    <input type="hidden" name="action" value="register">
+
+                    <div>
+                        <label for="reg_fullname" class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">
+                            Họ và tên <span class="text-red-400">*</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
+                                <i class="fa-solid fa-signature"></i>
+                            </span>
+                            <input type="text" 
+                                   id="reg_fullname" 
+                                   name="full_name" 
+                                   required 
+                                   value=""
+                                   placeholder="Ví dụ: Trần Văn Nam" 
+                                   class="w-full bg-[#111427]/80 border border-gray-700 focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/30 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-500 transition outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label for="reg_username" class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">
+                                Tên đăng nhập <span class="text-red-400">*</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
+                                    <i class="fa-solid fa-at"></i>
+                                </span>
+                                <input type="text" 
+                                       id="reg_username" 
+                                       name="username" 
+                                       required 
+                                       value=""
+                                       placeholder="vannam123" 
+                                       class="w-full bg-[#111427]/80 border border-gray-700 focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/30 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-500 transition outline-none">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="reg_phone" class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">
+                                Số điện thoại (SĐT)
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
+                                    <i class="fa-solid fa-phone"></i>
+                                </span>
+                                <input type="tel" 
+                                       id="reg_phone" 
+                                       name="phone" 
+                                       value=""
+                                       placeholder="0912345678" 
+                                       class="w-full bg-[#111427]/80 border border-gray-700 focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/30 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-500 transition outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="reg_email" class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">
+                            Gmail / Email nhận thư xác nhận <span class="text-red-400">*</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
+                                <i class="fa-solid fa-envelope"></i>
+                            </span>
+                            <input type="email" 
+                                   id="reg_email" 
+                                   name="email" 
+                                   required 
+                                   value=""
+                                   placeholder="nam.tran@gmail.com" 
+                                   class="w-full bg-[#111427]/80 border border-gray-700 focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/30 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-500 transition outline-none">
+                        </div>
+                        <span class="text-[11px] text-gray-400 mt-1 block">
+                            * Thư xác nhận đăng ký sẽ được tự động gửi vào Gmail này.
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label for="reg_password" class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">
+                                Mật khẩu <span class="text-red-400">*</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
+                                    <i class="fa-solid fa-lock"></i>
+                                </span>
+                                <input type="password" 
+                                       id="reg_password" 
+                                       name="password" 
+                                       required 
+                                       placeholder="••••••••" 
+                                       class="w-full bg-[#111427]/80 border border-gray-700 focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/30 rounded-xl pl-10 pr-10 py-2.5 text-sm text-white placeholder-gray-500 transition outline-none">
+                                <button type="button" 
+                                        class="togglePasswordBtn absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-200">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="reg_repassword" class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">
+                                Nhập lại mật khẩu <span class="text-red-400">*</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
+                                    <i class="fa-solid fa-shield-check"></i>
+                                </span>
+                                <input type="password" 
+                                       id="reg_repassword" 
+                                       name="re_password" 
+                                       required 
+                                       placeholder="••••••••" 
+                                       class="w-full bg-[#111427]/80 border border-gray-700 focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/30 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-500 transition outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-emerald-300 flex items-center gap-2">
+                        <i class="fa-solid fa-lock text-sm flex-shrink-0"></i>
+                        <span>Mỗi tài khoản được cấp cơ sở dữ liệu thu/chi và ví tiền riêng biệt 100%.</span>
+                    </div>
+
+                    <button type="submit" 
+                            class="w-full bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#0d9488] hover:to-[#047857] text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-emerald-500/25 transition duration-200 flex items-center justify-center gap-2 mt-2">
+                        <span>Đăng Ký & Nhận Xác Nhận Gmail</span>
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                    </button>
+                </form>
+
+                <p class="text-center text-xs text-gray-400 mt-5">
+                    Đã có tài khoản? 
+                    <a href="auth.php?mode=login" class="text-indigo-400 font-semibold hover:underline ml-1">Quay lại Đăng nhập</a>
+                </p>
+
+            <!-- ===================================================================
+                 VIEW 3: QUÊN MẬT KHẨU - NHẬP GMAIL NHẬN MÃ OTP
+                 =================================================================== -->
+            
+        </div>
+
+        <!-- Chân trang -->
+        <p class="text-center text-xs text-gray-500 mt-6 flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-shield-halved text-gray-600"></i>
+            FinTrack VN &copy; 2026 • Bảo mật với mã hóa Bcrypt & Quản lý dữ liệu riêng biệt
+        </p>
+    </div>
+
+    <script>
+        // Bật/tắt ẩn hiện mật khẩu trên tất cả các ô input password
+        document.querySelectorAll('.togglePasswordBtn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const input = this.parentElement.querySelector('input');
+                const icon = this.querySelector('i');
+                if (input) {
+                    const isPassword = input.getAttribute('type') === 'password';
+                    input.setAttribute('type', isPassword ? 'text' : 'password');
+                    icon.classList.toggle('fa-eye', !isPassword);
+                    icon.classList.toggle('fa-eye-slash', isPassword);
+                }
+            });
+        });
+
+        // Điền nhanh thông tin tài khoản mẫu ở chế độ Đăng nhập
+        const btnQuickFill = document.getElementById('btnQuickFill');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+
+        if (btnQuickFill && usernameInput && passwordInput) {
+            btnQuickFill.addEventListener('click', function() {
+                usernameInput.value = 'admin';
+                passwordInput.value = 'admin123';
+                usernameInput.focus();
+            });
+        }
+    </script>
+</body>
+</html>
