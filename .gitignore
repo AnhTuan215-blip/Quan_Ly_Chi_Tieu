@@ -1,0 +1,18 @@
+# FinTrack VN - Git Ignore Rules
+# Hệ điều hành & IDE
+Thumbs.db
+Desktop.ini
+.DS_Store
+.idea/
+.vscode/
+*.log
+
+# Tệp phiên bản & kiểm thử tạm thời
+cookies.txt
+test_*.php
+*.tmp
+*.bak
+
+# Giữ cấu trúc thư mục uploads nhưng không commit hóa đơn upload thực tế của người dùng
+uploads/receipts/*
+!uploads/receipts/.gitkeep

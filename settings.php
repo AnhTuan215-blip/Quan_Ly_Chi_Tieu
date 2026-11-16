@@ -1,0 +1,3310 @@
+<?php
+/**
+ * FinTrack VN - Sổ Quản Lý Tài Chính & Chi Tiêu Thông Minh
+ * Trang Cài Đặt Hệ Thống (Settings Page)
+ * Đường dẫn: settings.php
+ */
+
+require_once __DIR__ . '/config.php';
+
+// Tự động gán người dùng mặc định nếu chưa có session để trang hoạt động mượt mà
+if (!isset($_SESSION['user_id'])) {
+    $_SESSION['user_id'] = 1;
+    $_SESSION['username'] = 'admin';
+    $_SESSION['full_name'] = 'Nguyễn Văn An';
+    $_SESSION['email'] = 'an.nguyen@email.com';
+    $_SESSION['membership_type'] = 'premium';
+    $_SESSION['avatar'] = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80';
+}
+
+// Bắt buộc xác thực người dùng
+checkAuth();
+
+$currentUser = getCurrentUser($pdo) ?? [
+    'id' => 1,
+    'username' => 'admin',
+    'full_name' => 'Nguyễn Văn An',
+    'email' => 'an.nguyen@email.com',
+    'membership_type' => 'premium',
+    'avatar' => 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80'
+];
+
+$activePage = 'settings';
+?>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cài Đặt Hệ Thống - FinTrack VN</title>
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ===================================================================
+           FINTRACK VN - CORE DESIGN SYSTEM & EMBEDDED STYLES
+           =================================================================== */
+        :root {
+            --bg-base: #0B0E1B;
+            --bg-sidebar: #111427;
+            --bg-header: #111427;
+            --bg-card: #181C33;
+            --bg-card-hover: #1F2442;
+            --bg-input: #111427;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-color-hover: rgba(255, 255, 255, 0.16);
+            --primary: #4F59E8;
+            --primary-hover: #434BD4;
+            --primary-light: rgba(79, 89, 232, 0.12);
+            --accent-blue: #2563EB;
+            --accent-cyan: #06B6D4;
+            --accent-green: #10B981;
+            --accent-orange: #F97316;
+            --accent-amber: #F59E0B;
+            --accent-red: #EF4444;
+            --accent-purple: #9333EA;
+            --text-main: #FFFFFF;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+            --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+            --shadow-glow: 0 0 20px rgba(79, 89, 232, 0.25);
+            --sidebar-width: 260px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+        }
+
+        /* Tùy chỉnh thanh cuộn */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2D3357;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4F59E8;
+        }
+
+        /* ===================================================================
+           SIDEBAR NAVIGATION
+           =================================================================== */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-brand {
+            padding: 24px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .brand-logo-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #4F59E8 0%, #06B6D4 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-size: 20px;
+            box-shadow: 0 4px 15px rgba(79, 89, 232, 0.4);
+        }
+
+        .brand-text h1 {
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+            color: #FFFFFF;
+        }
+
+        .brand-text h1 span {
+            color: #4F59E8;
+        }
+
+        .brand-text p {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .sidebar-nav {
+            padding: 20px 14px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            color: var(--text-muted);
+            padding: 10px 14px 6px;
+            display: block;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item i {
+            font-size: 17px;
+            width: 22px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .nav-item:hover {
+            color: #FFFFFF;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-item:hover i {
+            transform: scale(1.1);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #4F59E8 0%, #6366F1 100%);
+            color: #FFFFFF;
+            box-shadow: 0 4px 18px rgba(79, 89, 232, 0.35);
+        }
+
+        .nav-item.active i {
+            color: #FFFFFF;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            color: #FFFFFF;
+            font-weight: 700;
+        }
+
+        .sidebar-user {
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            object-fit: cover;
+            background-color: #2D3357;
+        }
+
+        .user-info {
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .user-name {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #FFFFFF;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-role-badge {
+            font-size: 10.5px;
+            display: inline-block;
+            color: #10B981;
+            font-weight: 600;
+            background: rgba(16, 185, 129, 0.12);
+            padding: 1px 7px;
+            border-radius: 10px;
+            margin-top: 2px;
+        }
+
+        .btn-logout {
+            color: var(--text-muted);
+            font-size: 16px;
+            padding: 6px;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-logout:hover {
+            color: var(--accent-red);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* ===================================================================
+           MAIN LAYOUT WRAPPER & TOPBAR
+           =================================================================== */
+        .main-wrapper {
+            margin-left: var(--sidebar-width);
+            flex-grow: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-base);
+            width: calc(100% - var(--sidebar-width));
+        }
+
+        .topbar {
+            height: 70px;
+            background-color: var(--bg-header);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 90;
+            backdrop-filter: blur(10px);
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: #FFFFFF;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 6px;
+        }
+
+        .search-box {
+            position: relative;
+            width: 320px;
+        }
+
+        .search-box input {
+            width: 100%;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 10px 16px 10px 40px;
+            font-size: 13.5px;
+            color: #FFFFFF;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 89, 232, 0.2);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .date-badge {
+            font-size: 12.5px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .icon-btn:hover {
+            color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--border-color-hover);
+        }
+
+        .icon-btn .badge-dot {
+            position: absolute;
+            top: 9px;
+            right: 9px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--accent-orange);
+            border: 2px solid var(--bg-header);
+        }
+
+        /* ===================================================================
+           PAGE CONTENT CONTAINER
+           =================================================================== */
+        .page-content {
+            padding: 32px 36px 120px;
+            flex-grow: 1;
+            max-width: 1600px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* -------------------------------------------------------------
+           PAGE HEADER
+           ------------------------------------------------------------- */
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .breadcrumb {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            color: #4F59E8;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #FFFFFF;
+            line-height: 1.2;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            font-weight: 500;
+        }
+
+        .page-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .system-status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #10B981;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #10B981;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse-green 2s infinite;
+        }
+
+        @keyframes pulse-green {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        .btn-header-save {
+            background: linear-gradient(135deg, #4F59E8 0%, #6366F1 100%);
+            color: #FFFFFF;
+            font-size: 13.5px;
+            font-weight: 700;
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(79, 89, 232, 0.35);
+            transition: all 0.2s;
+        }
+
+        .btn-header-save:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(79, 89, 232, 0.45);
+        }
+
+        /* -------------------------------------------------------------
+           TWO-COLUMN SETTINGS CONTAINER
+           ------------------------------------------------------------- */
+        .settings-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 28px;
+            align-items: start;
+        }
+
+        /* LEFT VERTICAL TABS NAVIGATION (~20-25%) */
+        .settings-nav-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            box-shadow: var(--shadow-card);
+        }
+
+        .tab-button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 16px;
+            border-radius: var(--radius-md);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .tab-button i {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .tab-button:hover {
+            color: #FFFFFF;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-button:hover i {
+            color: #FFFFFF;
+        }
+
+        /* Active blue bg as specified */
+        .tab-button.active {
+            background-color: var(--accent-blue);
+            color: #FFFFFF;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
+        }
+
+        .tab-button.active i {
+            color: #FFFFFF;
+        }
+
+        .tab-badge {
+            margin-left: auto;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #FFFFFF;
+        }
+
+        /* Security Note Card at bottom of left nav */
+        .security-note-box {
+            margin-top: 14px;
+            background: rgba(17, 20, 39, 0.8);
+            border: 1px solid rgba(79, 89, 232, 0.25);
+            border-radius: var(--radius-md);
+            padding: 16px 14px;
+        }
+
+        .security-note-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 6px;
+        }
+
+        .security-note-header i {
+            color: #10B981;
+            font-size: 15px;
+        }
+
+        .security-note-desc {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* RIGHT CONTENT CONTAINER (~75-80%) */
+        .settings-content-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px;
+            box-shadow: var(--shadow-card);
+            min-height: 580px;
+        }
+
+        .tab-pane {
+            display: none;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tab-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .tab-header-text h3 {
+            font-size: 20px;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.3px;
+        }
+
+        .tab-header-text p {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4F59E8 0%, #6366F1 100%);
+            color: #FFFFFF;
+            font-size: 13.5px;
+            font-weight: 700;
+            padding: 10px 18px;
+            border-radius: var(--radius-md);
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(79, 89, 232, 0.3);
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(79, 89, 232, 0.4);
+        }
+
+        /* ===================================================================
+           TAB 1: QUẢN LÝ DANH MỤC THU & CHI
+           =================================================================== */
+        .category-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .filter-tabs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(17, 20, 39, 0.6);
+            padding: 4px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .filter-btn {
+            background: none;
+            border: none;
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            color: #FFFFFF;
+        }
+
+        .filter-btn.active {
+            background: #2563EB;
+            color: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+
+        .sort-select-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sort-select {
+            background-color: rgba(17, 20, 39, 0.8);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            padding: 8px 14px;
+            border-radius: var(--radius-md);
+            outline: none;
+            cursor: pointer;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .sort-select:focus {
+            border-color: var(--primary);
+            color: #FFFFFF;
+        }
+
+        /* Categories Modern Table */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            background: rgba(17, 20, 39, 0.4);
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .custom-table th {
+            background-color: rgba(17, 20, 39, 0.9);
+            padding: 14px 18px;
+            font-size: 11.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 700;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .custom-table td {
+            padding: 16px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 13.5px;
+            vertical-align: middle;
+            transition: background-color 0.15s;
+        }
+
+        .custom-table tbody tr:hover td {
+            background-color: rgba(255, 255, 255, 0.025);
+        }
+
+        .custom-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Category Item Cell */
+        .cat-info-cell {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .cat-icon-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            color: #FFFFFF;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .cat-details {
+            min-width: 0;
+        }
+
+        .cat-name {
+            font-weight: 700;
+            color: #FFFFFF;
+            font-size: 14.5px;
+            margin-bottom: 2px;
+        }
+
+        .cat-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.4;
+            max-width: 320px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Type Badges */
+        .type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .type-badge.chi_tieu {
+            background: rgba(249, 115, 22, 0.12);
+            color: #F97316;
+            border: 1px solid rgba(249, 115, 22, 0.25);
+        }
+
+        .type-badge.thu_nhap {
+            background: rgba(16, 185, 129, 0.12);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+
+        /* Budget Cell */
+        .budget-amount {
+            font-weight: 700;
+            font-size: 14px;
+            color: #FFFFFF;
+            font-family: inherit;
+        }
+
+        /* Color Dot Cell */
+        .color-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: monospace;
+            font-size: 12.5px;
+            color: var(--text-secondary);
+        }
+
+        .color-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Action Buttons */
+        .action-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-table-action {
+            width: 34px;
+            height: 34px;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        .btn-table-action:hover.edit {
+            color: #3B82F6;
+            background: rgba(59, 130, 246, 0.12);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-table-action:hover.delete {
+            color: #EF4444;
+            background: rgba(239, 68, 68, 0.12);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        /* ===================================================================
+           TAB 2: THIẾT LẬP NGÂN SÁCH THÁNG & CẢNH BÁO THÔNG MINH
+           =================================================================== */
+        .budget-hero-card {
+            background: linear-gradient(135deg, rgba(30, 36, 68, 0.9) 0%, rgba(17, 20, 39, 0.95) 100%);
+            border: 1px solid rgba(79, 89, 232, 0.3);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            margin-bottom: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .budget-hero-card::after {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(79, 89, 232, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .budget-hero-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .budget-hero-title-area {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .month-select-dropdown {
+            background: rgba(17, 20, 39, 0.9);
+            border: 1px solid rgba(79, 89, 232, 0.4);
+            color: #FFFFFF;
+            font-size: 14.5px;
+            font-weight: 700;
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            outline: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .budget-main-amount {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+        }
+
+        .budget-big-number {
+            font-size: 36px;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -1px;
+        }
+
+        .budget-period-label {
+            font-size: 16px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .btn-edit-limit {
+            margin-left: auto;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border-color);
+            color: #FFFFFF;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 9px 18px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-edit-limit:hover {
+            background: rgba(79, 89, 232, 0.2);
+            border-color: var(--primary);
+        }
+
+        /* Visual Progress Bar */
+        .budget-progress-container {
+            margin-bottom: 20px;
+        }
+
+        .budget-progress-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13.5px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .stat-spent {
+            color: #F97316;
+        }
+
+        .stat-remaining {
+            color: #10B981;
+        }
+
+        .progress-track {
+            height: 12px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3B82F6 0%, #F97316 75%, #EF4444 100%);
+            border-radius: 20px;
+            width: 54.4%;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        /* Discipline Rating Badge */
+        .discipline-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            padding: 12px 18px;
+            border-radius: var(--radius-md);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .discipline-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        .discipline-badge {
+            background: #10B981;
+            color: #FFFFFF;
+            font-size: 12px;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .discipline-note {
+            font-size: 12.5px;
+            color: var(--text-secondary);
+        }
+
+        /* Alert Settings Card */
+        .alert-settings-card {
+            background: rgba(17, 20, 39, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+        }
+
+        .alert-settings-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .alert-row:last-child {
+            border-bottom: none;
+            padding-bottom: 4px;
+        }
+
+        .alert-info {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            max-width: 80%;
+        }
+
+        .alert-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        .alert-icon.yellow {
+            background: rgba(245, 158, 11, 0.15);
+            color: #F59E0B;
+        }
+
+        .alert-icon.red {
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+        }
+
+        .alert-text h4 {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 3px;
+        }
+
+        .alert-text p {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Modern Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 26px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #2D3357;
+            transition: 0.3s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #10B981;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        /* ===================================================================
+           TAB 3: TIỀN TỆ & ĐỊNH DẠNG HIỂN THỊ
+           =================================================================== */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-select, .form-input, .form-textarea {
+            width: 100%;
+            background-color: rgba(17, 20, 39, 0.8);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #FFFFFF;
+            outline: none;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .form-select:focus, .form-input:focus, .form-textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 89, 232, 0.2);
+        }
+
+        .form-hint {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Live Preview Card */
+        .preview-card {
+            background: rgba(17, 20, 39, 0.6);
+            border: 1px solid rgba(79, 89, 232, 0.3);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+        }
+
+        .preview-header {
+            font-size: 14px;
+            font-weight: 700;
+            color: #4F59E8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .preview-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+        }
+
+        .preview-label {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .preview-value {
+            font-size: 17px;
+            font-weight: 800;
+            color: #FFFFFF;
+        }
+
+        /* ===================================================================
+           TAB 4, 5, 6: PLACEHOLDER SECTIONS
+           =================================================================== */
+        .placeholder-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .wallet-card-item {
+            background: rgba(17, 20, 39, 0.7);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 22px;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .wallet-card-item:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .wallet-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .wallet-badge-primary {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #10B981;
+            background: rgba(16, 185, 129, 0.12);
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .wallet-balance {
+            font-size: 22px;
+            font-weight: 800;
+            color: #FFFFFF;
+            margin-bottom: 6px;
+        }
+
+        .wallet-name {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .action-box-card {
+            background: rgba(17, 20, 39, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 14px;
+        }
+
+        .action-box-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .action-box-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #FFFFFF;
+            flex-shrink: 0;
+        }
+
+        .theme-selector-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .theme-card-option {
+            background: rgba(17, 20, 39, 0.7);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .theme-card-option.active {
+            border-color: var(--primary);
+            background: rgba(79, 89, 232, 0.1);
+        }
+
+        .theme-card-option i {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .theme-card-option h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        /* ===================================================================
+           STICKY BOTTOM ACTION BAR
+           =================================================================== */
+        .bottom-action-bar {
+            position: fixed;
+            bottom: 0;
+            left: var(--sidebar-width);
+            right: 0;
+            height: 72px;
+            background-color: rgba(17, 20, 39, 0.95);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 36px;
+            z-index: 80;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .bottom-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12.5px;
+            color: var(--text-secondary);
+        }
+
+        .bottom-bar-left i {
+            color: #3B82F6;
+            font-size: 15px;
+        }
+
+        .bottom-bar-middle {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .bottom-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .btn-cancel {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 13.5px;
+            font-weight: 600;
+            padding: 9px 20px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel:hover {
+            color: #FFFFFF;
+            border-color: var(--border-color-hover);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-save-all {
+            background: #111427;
+            border: 1px solid rgba(79, 89, 232, 0.6);
+            color: #FFFFFF;
+            font-size: 13.5px;
+            font-weight: 700;
+            padding: 9px 22px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-save-all:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 4px 18px rgba(79, 89, 232, 0.4);
+        }
+
+        /* ===================================================================
+           MODAL DIALOGS
+           =================================================================== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.25s ease;
+            padding: 16px;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-container {
+            background-color: #181C33;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: var(--radius-xl);
+            width: 100%;
+            max-width: 580px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            transform: scale(0.95);
+            transition: transform 0.25s ease;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
+        }
+
+        .modal-overlay.active .modal-container {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: 22px 28px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #FFFFFF;
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+
+        .modal-close-btn:hover {
+            color: #FFFFFF;
+        }
+
+        .modal-body {
+            padding: 24px 28px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .modal-footer {
+            padding: 18px 28px;
+            border-top: 1px solid var(--border-color);
+            background: rgba(17, 20, 39, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* Segmented Radio Control */
+        .segmented-control {
+            display: flex;
+            background: rgba(17, 20, 39, 0.8);
+            padding: 4px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .segmented-option {
+            flex: 1;
+            text-align: center;
+        }
+
+        .segmented-option input {
+            display: none;
+        }
+
+        .segmented-option label {
+            display: block;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .segmented-option input:checked + label {
+            background: #2563EB;
+            color: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Color Palette Grid */
+        .color-palette-grid {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+
+        .color-circle-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .color-circle-btn:hover {
+            transform: scale(1.15);
+        }
+
+        .color-circle-btn.selected {
+            border-color: #FFFFFF;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+            transform: scale(1.15);
+        }
+
+        /* Icon Picker Grid */
+        .icon-picker-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+            max-height: 140px;
+            overflow-y: auto;
+            padding: 4px;
+            background: rgba(17, 20, 39, 0.5);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .icon-option-btn {
+            height: 38px;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .icon-option-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #FFFFFF;
+        }
+
+        .icon-option-btn.selected {
+            background: var(--primary);
+            color: #FFFFFF;
+            border-color: #FFFFFF;
+        }
+
+        /* ===================================================================
+           TOAST NOTIFICATIONS
+           =================================================================== */
+        .toast-container {
+            position: fixed;
+            bottom: 86px;
+            right: 32px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast-item {
+            background: #181C33;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-md);
+            padding: 14px 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            max-width: 420px;
+            pointer-events: auto;
+            animation: slideInToast 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.3s ease;
+        }
+
+        .toast-item.hide {
+            opacity: 0;
+            transform: translateX(50px);
+        }
+
+        .toast-item.success {
+            border-left: 4px solid #10B981;
+        }
+
+        .toast-item.error {
+            border-left: 4px solid #EF4444;
+        }
+
+        .toast-icon {
+            font-size: 18px;
+        }
+
+        .toast-item.success .toast-icon { color: #10B981; }
+        .toast-item.error .toast-icon { color: #EF4444; }
+
+        .toast-text {
+            font-size: 13.5px;
+            color: #FFFFFF;
+            font-weight: 600;
+        }
+
+        @keyframes slideInToast {
+            from {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* ===================================================================
+           RESPONSIVE BREAKPOINTS
+           =================================================================== */
+        @media (max-width: 1024px) {
+            .settings-layout {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            .main-wrapper {
+                margin-left: 0;
+                width: 100%;
+            }
+            .bottom-action-bar {
+                left: 0;
+            }
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-content {
+                padding: 20px 16px 120px;
+            }
+            .topbar {
+                padding: 0 16px;
+            }
+            .search-box {
+                display: none;
+            }
+            .bottom-action-bar {
+                padding: 0 16px;
+                flex-direction: column;
+                height: auto;
+                padding: 12px 16px;
+                gap: 8px;
+            }
+            .bottom-bar-middle {
+                display: none;
+            }
+            .theme-selector-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- =============================================================
+         1. SIDEBAR NAVIGATION
+         ============================================================= -->
+    <aside class="sidebar" id="sidebar">
+        <div>
+            <!-- Brand Logo -->
+            <div class="sidebar-brand">
+                <div class="brand-logo-icon">
+                    <i class="fa-solid fa-wallet"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>FinTrack <span>VN</span></h1>
+                    <p>Sổ Quản Lý Tài Chính</p>
+                </div>
+            </div>
+
+            <!-- Nav Links -->
+            <nav class="sidebar-nav">
+                <span class="nav-label">Menu Chính</span>
+                <a href="index.php" class="nav-item">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Trang chủ</span>
+                </a>
+                <a href="calendar.php" class="nav-item">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <span>Lịch giao dịch</span>
+                </a>
+                <a href="add_transaction.php" class="nav-item">
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <span>Thêm giao dịch</span>
+                </a>
+                <a href="reports.php" class="nav-item">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Báo cáo & Phân tích</span>
+                </a>
+
+                <span class="nav-label" style="margin-top: 14px;">Hệ Thống</span>
+                <a href="settings.php" class="nav-item active">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Cài đặt</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- User Profile at Sidebar Bottom -->
+        <div class="sidebar-user">
+            <div class="user-card">
+                <img src="<?= htmlspecialchars($currentUser['avatar'] ?? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80') ?>" alt="User Avatar" class="user-avatar">
+                <div class="user-info">
+                    <div class="user-name"><?= htmlspecialchars($currentUser['full_name'] ?? 'Nguyễn Văn An') ?></div>
+                    <span class="user-role-badge">Tài khoản Premium</span>
+                </div>
+                <a href="auth.php?action=logout" class="btn-logout" title="Đăng xuất">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- =============================================================
+         2. MAIN WRAPPER (TOPBAR + CONTENT + BOTTOM BAR)
+         ============================================================= -->
+    <div class="main-wrapper">
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="globalSearchInput" placeholder="Tìm kiếm danh mục, cài đặt...">
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <div class="date-badge">
+                    <i class="fa-regular fa-calendar"></i>
+                    <span>Hôm nay, <?= date('d/m/Y') ?></span>
+                </div>
+
+                <a href="#" class="icon-btn" title="Thông báo hệ thống">
+                    <i class="fa-regular fa-bell"></i>
+                    <span class="badge-dot"></span>
+                </a>
+
+                <a href="auth.php?action=logout" class="icon-btn" title="Đăng xuất">
+                    <i class="fa-solid fa-power-off"></i>
+                </a>
+            </div>
+        </header>
+
+        <!-- Page Main Content -->
+        <main class="page-content">
+
+            <!-- PAGE HEADER -->
+            <div class="page-header">
+                <div>
+                    <div class="breadcrumb">
+                        <i class="fa-solid fa-terminal"></i>
+                        <span>HỆ THỐNG / CẤU HÌNH TRUNG TÂM</span>
+                    </div>
+                    <h2 class="page-title">Cài Đặt Hệ Thống</h2>
+                    <p class="page-subtitle">Quản lý danh mục, thiết lập ngân sách và tùy chỉnh tài khoản</p>
+                </div>
+
+                <div class="page-header-actions">
+                    <div class="system-status-indicator">
+                        <div class="pulse-dot"></div>
+                        <span>Hệ thống vận hành ổn định</span>
+                    </div>
+
+                    <button type="button" class="btn-header-save" id="btnSaveHeader">
+                        <i class="fa-solid fa-check"></i>
+                        <span>Lưu tất cả thay đổi</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- TWO-COLUMN SETTINGS LAYOUT -->
+            <div class="settings-layout">
+
+                <!-- LEFT SETTINGS NAVIGATION (~20-25%) -->
+                <div class="settings-nav-card">
+                    <!-- Tab Buttons -->
+                    <button type="button" class="tab-button active" data-tab="tab-categories">
+                        <i class="fa-solid fa-layer-group"></i>
+                        <span>Danh mục thu & chi</span>
+                    </button>
+
+                    <button type="button" class="tab-button" data-tab="tab-budgets">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Ngân sách & Cảnh báo</span>
+                    </button>
+
+                    <button type="button" class="tab-button" data-tab="tab-currency">
+                        <i class="fa-solid fa-coins"></i>
+                        <span>Tiền tệ & Định dạng</span>
+                    </button>
+
+                    <button type="button" class="tab-button" data-tab="tab-wallets">
+                        <i class="fa-solid fa-wallet"></i>
+                        <span>Tài khoản & Ví</span>
+                        <span class="tab-badge">3 Ví</span>
+                    </button>
+
+                    <button type="button" class="tab-button" data-tab="tab-backup">
+                        <i class="fa-solid fa-cloud-arrow-down"></i>
+                        <span>Sao lưu & Xuất dữ liệu</span>
+                    </button>
+
+                    <button type="button" class="tab-button" data-tab="tab-appearance">
+                        <i class="fa-solid fa-palette"></i>
+                        <span>Giao diện & Trải nghiệm</span>
+                    </button>
+
+                    <!-- Security Note Box at Bottom -->
+                    <div class="security-note-box">
+                        <div class="security-note-header">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <span>Mã hóa AES-256</span>
+                        </div>
+                        <p class="security-note-desc">
+                            Tất cả dữ liệu giao dịch và thông tin cá nhân của bạn được bảo mật tuyệt đối với chuẩn mã hóa ngân hàng cấp quân sự AES-256 bit end-to-end.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- RIGHT CONTENT AREA (~75-80%) -->
+                <div class="settings-content-card">
+
+                    <!-- =====================================================
+                         TAB 1: QUẢN LÝ DANH MỤC THU & CHI
+                         ===================================================== -->
+                    <div class="tab-pane active" id="tab-categories">
+                        <div class="tab-header">
+                            <div class="tab-header-text">
+                                <h3>Quản Lý Danh Mục Thu & Chi</h3>
+                                <p>Phân nhóm dòng tiền giúp thuật toán FinTrack lập báo cáo chính xác</p>
+                            </div>
+                            <button type="button" class="btn-primary" id="btnOpenAddCategoryModal">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>Thêm danh mục mới</span>
+                            </button>
+                        </div>
+
+                        <!-- Filter and Sorting Toolbar -->
+                        <div class="category-toolbar">
+                            <div class="filter-tabs">
+                                <button type="button" class="filter-btn active" data-filter="all" id="filterBtnAll">
+                                    Tất cả (<span id="countAll">7</span>)
+                                </button>
+                                <button type="button" class="filter-btn" data-filter="chi_tieu" id="filterBtnExpense">
+                                    Chi tiêu (<span id="countExpense">5</span>)
+                                </button>
+                                <button type="button" class="filter-btn" data-filter="thu_nhap" id="filterBtnIncome">
+                                    Thu nhập (<span id="countIncome">2</span>)
+                                </button>
+                            </div>
+
+                            <div class="sort-select-wrapper">
+                                <select class="sort-select" id="sortCategoriesSelect">
+                                    <option value="budget_desc">Quy tắc sắp xếp: Ngân sách giảm dần</option>
+                                    <option value="budget_asc">Quy tắc sắp xếp: Ngân sách tăng dần</option>
+                                    <option value="name_asc">Quy tắc sắp xếp: Tên A-Z</option>
+                                    <option value="name_desc">Quy tắc sắp xếp: Tên Z-A</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Categories Table -->
+                        <div class="table-responsive">
+                            <table class="custom-table" id="categoriesTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 38%;">Tên danh mục</th>
+                                        <th style="width: 16%;">Phân loại</th>
+                                        <th style="width: 20%;">Ngân sách / Mức tiêu</th>
+                                        <th style="width: 14%;">Màu sắc</th>
+                                        <th style="width: 12%; text-align: right;">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="categoriesTableBody">
+                                    <!-- Dynamic rows loaded via JS / initial render -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- =====================================================
+                         TAB 2: THIẾT LẬP NGÂN SÁCH THÁNG & CẢNH BÁO THÔNG MINH
+                         ===================================================== -->
+                    <div class="tab-pane" id="tab-budgets">
+                        <div class="tab-header">
+                            <div class="tab-header-text">
+                                <h3>Thiết Lập Ngân Sách Tháng & Cảnh Báo Thông Minh</h3>
+                                <p>Kiểm soát dòng tiền chủ động và nhận cảnh báo sớm trước khi vượt hạn mức</p>
+                            </div>
+
+                            <div class="budget-hero-title-area">
+                                <select class="month-select-dropdown" id="budgetMonthSelector">
+                                    <option value="10-2024" selected>Tháng 10 / 2024</option>
+                                    <option value="11-2024">Tháng 11 / 2024</option>
+                                    <option value="12-2024">Tháng 12 / 2024</option>
+                                    <option value="9-2024">Tháng 9 / 2024</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Hero Budget Overview Card -->
+                        <div class="budget-hero-card">
+                            <div class="budget-hero-header">
+                                <span style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #94A3B8;">
+                                    TỔNG HẠN MỨC NGÂN SÁCH THÁNG
+                                </span>
+                                <button type="button" class="btn-edit-limit" id="btnEditBudgetLimit">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                    <span>Chỉnh sửa hạn mức</span>
+                                </button>
+                            </div>
+
+                            <div class="budget-main-amount">
+                                <div class="budget-big-number" id="budgetTotalDisplay">25.000.000 đ</div>
+                                <div class="budget-period-label">/ tháng</div>
+                            </div>
+
+                            <!-- Visual Progress Bar -->
+                            <div class="budget-progress-container">
+                                <div class="budget-progress-stats">
+                                    <span class="stat-spent" id="budgetSpentDisplay">Đã dùng: 13.600.000 đ (54.4%)</span>
+                                    <span class="stat-remaining" id="budgetRemainingDisplay">Còn lại: 11.400.000 đ</span>
+                                </div>
+                                <div class="progress-track">
+                                    <div class="progress-bar-fill" id="budgetProgressBar" style="width: 54.4%;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Discipline Rating Box -->
+                            <div class="discipline-box">
+                                <div class="discipline-title">
+                                    <i class="fa-solid fa-award" style="color: #10B981; font-size: 17px;"></i>
+                                    <span>ĐÁNH GIÁ KỶ LUẬT:</span>
+                                    <span class="discipline-badge" id="disciplineRatingBadge">Xuất Sắc</span>
+                                </div>
+                                <div class="discipline-note" id="disciplineNoteText">
+                                    Tỷ lệ chi tiêu duy trì ở mức an toàn 54.4%, tiết kiệm vượt dự kiến 11.400.000 đ.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Alert Settings -->
+                        <div class="alert-settings-card">
+                            <div class="alert-settings-title">
+                                <i class="fa-solid fa-bell-ring" style="color: #4F59E8;"></i>
+                                <span>Cài Đặt Cảnh Báo Thông Minh Tự Động</span>
+                            </div>
+
+                            <!-- Yellow Alert 80% -->
+                            <div class="alert-row">
+                                <div class="alert-info">
+                                    <div class="alert-icon yellow">
+                                        <i class="fa-solid fa-triangle-exclamation"></i>
+                                    </div>
+                                    <div class="alert-text">
+                                        <h4>Cảnh báo vàng khi chạm 80%</h4>
+                                        <p>Gửi thông báo nhắc nhở đẩy (Push notification) và email cảnh báo khi tổng chi tiêu tháng đạt 80% hạn mức (tương đương 20.000.000 đ).</p>
+                                    </div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="toggleWarningYellow" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <!-- Red Alert 100% -->
+                            <div class="alert-row">
+                                <div class="alert-info">
+                                    <div class="alert-icon red">
+                                        <i class="fa-solid fa-circle-exclamation"></i>
+                                    </div>
+                                    <div class="alert-text">
+                                        <h4>Cảnh báo đỏ khẩn cấp khi chạm 100%</h4>
+                                        <p>Khóa cảnh báo màu đỏ trên Dashboard và gửi thông báo khẩn cấp ngay khi ngân sách tháng chạm hoặc vượt ngưỡng 100%.</p>
+                                    </div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="toggleWarningRed" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- =====================================================
+                         TAB 3: TIỀN TỆ & ĐỊNH DẠNG HIỂN THỊ
+                         ===================================================== -->
+                    <div class="tab-pane" id="tab-currency">
+                        <div class="tab-header">
+                            <div class="tab-header-text">
+                                <h3>Tiền Tệ & Định Dạng Hiển Thị</h3>
+                                <p>Thiết lập đơn vị tiền tệ, quy cách phân tách chữ số và hiển thị thời gian</p>
+                            </div>
+                        </div>
+
+                        <form id="currencySettingsForm">
+                            <div class="form-grid">
+                                <!-- Currency -->
+                                <div class="form-group">
+                                    <label class="form-label" for="selectCurrency">
+                                        <i class="fa-solid fa-money-bill-1-wave" style="color: #10B981;"></i>
+                                        <span>Đơn vị tiền tệ hiển thị</span>
+                                    </label>
+                                    <select class="form-select" id="selectCurrency">
+                                        <option value="VND" selected>Việt Nam Đồng (VND - đ)</option>
+                                        <option value="USD">Đô la Mỹ (USD - $)</option>
+                                        <option value="EUR">Euro (EUR - €)</option>
+                                        <option value="JPY">Yên Nhật (JPY - ¥)</option>
+                                    </select>
+                                    <span class="form-hint">Mọi số tiền trên hệ thống sẽ áp dụng ký hiệu tiền tệ này</span>
+                                </div>
+
+                                <!-- Number Format -->
+                                <div class="form-group">
+                                    <label class="form-label" for="selectNumberFormat">
+                                        <i class="fa-solid fa-calculator" style="color: #3B82F6;"></i>
+                                        <span>Định dạng phân cách chữ số</span>
+                                    </label>
+                                    <select class="form-select" id="selectNumberFormat">
+                                        <option value="100.000.000" selected>100.000.000 đ (Dấu chấm - Chuẩn VN)</option>
+                                        <option value="100,000,000">100,000,000 đ (Dấu phẩy - Chuẩn Quốc tế)</option>
+                                        <option value="100 000 000">100 000 000 đ (Khoảng trắng)</option>
+                                    </select>
+                                    <span class="form-hint">Quy tắc phân tách hàng nghìn, triệu, tỷ</span>
+                                </div>
+
+                                <!-- Date Format -->
+                                <div class="form-group">
+                                    <label class="form-label" for="selectDateFormat">
+                                        <i class="fa-regular fa-calendar-days" style="color: #F59E0B;"></i>
+                                        <span>Định dạng ngày tháng</span>
+                                    </label>
+                                    <select class="form-select" id="selectDateFormat">
+                                        <option value="DD/MM/YYYY" selected>DD/MM/YYYY (Ví dụ: 16/11/2024)</option>
+                                        <option value="YYYY-MM-DD">YYYY-MM-DD (Ví dụ: 2024-11-16)</option>
+                                        <option value="MM/DD/YYYY">MM/DD/YYYY (Ví dụ: 11/16/2024)</option>
+                                    </select>
+                                    <span class="form-hint">Hiển thị trong toàn bộ hóa đơn và báo cáo</span>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Live Preview Box -->
+                        <div class="preview-card">
+                            <div class="preview-header">
+                                <i class="fa-solid fa-eye"></i>
+                                <span>Bản Xem Trước Thực Tế (Live Preview)</span>
+                            </div>
+
+                            <div class="preview-grid">
+                                <div class="preview-item">
+                                    <div class="preview-label">Số tiền giao dịch mẫu</div>
+                                    <div class="preview-value" id="previewMoney">45.000.000 đ</div>
+                                </div>
+                                <div class="preview-item">
+                                    <div class="preview-label">Khoản chi tiêu nhỏ</div>
+                                    <div class="preview-value" id="previewSmallMoney">85.000 đ</div>
+                                </div>
+                                <div class="preview-item">
+                                    <div class="preview-label">Thời gian phát sinh</div>
+                                    <div class="preview-value" id="previewDate"><?= date('d/m/Y') ?></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- =====================================================
+                         TAB 4: TÀI KHOẢN & VÍ (PLACEHOLDER + INTERACTIVE)
+                         ===================================================== -->
+                    <div class="tab-pane" id="tab-wallets">
+                        <div class="tab-header">
+                            <div class="tab-header-text">
+                                <h3>Tài Khoản & Phương Thức Thanh Toán</h3>
+                                <p>Quản lý các tài khoản ngân hàng, ví điện tử và tiền mặt liên kết</p>
+                            </div>
+                            <button type="button" class="btn-primary" onclick="showToast('Tính năng thêm ví mới sẵn sàng!', 'success')">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>Thêm tài khoản mới</span>
+                            </button>
+                        </div>
+
+                        <div class="placeholder-grid">
+                            <!-- Wallet 1 -->
+                            <div class="wallet-card-item">
+                                <div class="wallet-card-header">
+                                    <div class="cat-icon-box" style="background: #2563EB;">
+                                        <i class="fa-solid fa-credit-card"></i>
+                                    </div>
+                                    <span class="wallet-badge-primary">Mặc định</span>
+                                </div>
+                                <div class="wallet-balance">42.850.000 đ</div>
+                                <div class="wallet-name">Techcombank Visa Signature</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Số tài khoản: •••• 8829</div>
+                            </div>
+
+                            <!-- Wallet 2 -->
+                            <div class="wallet-card-item">
+                                <div class="wallet-card-header">
+                                    <div class="cat-icon-box" style="background: #089182;">
+                                        <i class="fa-solid fa-building-columns"></i>
+                                    </div>
+                                    <span style="font-size: 11px; color: var(--text-muted);">Ngân hàng</span>
+                                </div>
+                                <div class="wallet-balance">15.000.000 đ</div>
+                                <div class="wallet-name">MB Bank Quân Đội</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Số tài khoản: •••• 5566</div>
+                            </div>
+
+                            <!-- Wallet 3 -->
+                            <div class="wallet-card-item">
+                                <div class="wallet-card-header">
+                                    <div class="cat-icon-box" style="background: #10B981;">
+                                        <i class="fa-solid fa-money-bill-1-wave"></i>
+                                    </div>
+                                    <span style="font-size: 11px; color: var(--text-muted);">Tiền mặt</span>
+                                </div>
+                                <div class="wallet-balance">5.000.000 đ</div>
+                                <div class="wallet-name">Tiền mặt ví cá nhân</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Sẵn sàng chi tiêu trực tiếp</div>
+                            </div>
+
+                            <!-- Wallet 4 -->
+                            <div class="wallet-card-item">
+                                <div class="wallet-card-header">
+                                    <div class="cat-icon-box" style="background: #D946EF;">
+                                        <i class="fa-solid fa-wallet"></i>
+                                    </div>
+                                    <span style="font-size: 11px; color: var(--text-muted);">Ví điện tử</span>
+                                </div>
+                                <div class="wallet-balance">2.800.000 đ</div>
+                                <div class="wallet-name">Ví MoMo Cá Nhân</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Liên kết số 0988••••••</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- =====================================================
+                         TAB 5: SAO LƯU & XUẤT DỮ LIỆU (PLACEHOLDER)
+                         ===================================================== -->
+                    <div class="tab-pane" id="tab-backup">
+                        <div class="tab-header">
+                            <div class="tab-header-text">
+                                <h3>Sao Lưu & Xuất Dữ Liệu An Toàn</h3>
+                                <p>Xuất báo cáo sao kê thu chi và tải về bản sao lưu dự phòng định dạng CSV/JSON</p>
+                            </div>
+                        </div>
+
+                        <div class="action-box-card">
+                            <div class="action-box-left">
+                                <div class="action-box-icon" style="background: #10B981;">
+                                    <i class="fa-solid fa-file-excel"></i>
+                                </div>
+                                <div>
+                                    <h4 style="font-size: 14.5px; font-weight: 700; color: #FFFFFF; margin-bottom: 2px;">Xuất Báo Cáo Giao Dịch Excel (.CSV)</h4>
+                                    <p style="font-size: 12.5px; color: var(--text-muted);">Tải toàn bộ lịch sử thu nhập, chi phí và hạn mức danh mục ra tệp bảng tính.</p>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-cancel" onclick="showToast('Đang tạo tệp CSV xuất dữ liệu...', 'success')">
+                                <i class="fa-solid fa-download"></i> Tải về CSV
+                            </button>
+                        </div>
+
+                        <div class="action-box-card">
+                            <div class="action-box-left">
+                                <div class="action-box-icon" style="background: #4F59E8;">
+                                    <i class="fa-solid fa-database"></i>
+                                </div>
+                                <div>
+                                    <h4 style="font-size: 14.5px; font-weight: 700; color: #FFFFFF; margin-bottom: 2px;">Sao Lưu Cơ Sở Dữ Liệu Toàn Phần (.JSON)</h4>
+                                    <p style="font-size: 12.5px; color: var(--text-muted);">Bản sao lưu cấu trúc và dữ liệu đầy đủ, có thể phục hồi lại bất kỳ lúc nào.</p>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-cancel" onclick="showToast('Đang tạo bản sao lưu JSON...', 'success')">
+                                <i class="fa-solid fa-cloud-arrow-down"></i> Tải bản sao lưu
+                            </button>
+                        </div>
+
+                        <div class="action-box-card">
+                            <div class="action-box-left">
+                                <div class="action-box-icon" style="background: #F59E0B;">
+                                    <i class="fa-solid fa-clock-rotate-left"></i>
+                                </div>
+                                <div>
+                                    <h4 style="font-size: 14.5px; font-weight: 700; color: #FFFFFF; margin-bottom: 2px;">Tự Động Sao Lưu Hàng Tuần Lên Đám Mây</h4>
+                                    <p style="font-size: 12.5px; color: var(--text-muted);">Bản sao lưu gần nhất: Hôm qua lúc 23:59 (Trạng thái: Hoàn tất 100%).</p>
+                                </div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- =====================================================
+                         TAB 6: GIAO DIỆN & TRẢI NGHIỆM (PLACEHOLDER)
+                         ===================================================== -->
+                    <div class="tab-pane" id="tab-appearance">
+                        <div class="tab-header">
+                            <div class="tab-header-text">
+                                <h3>Giao Diện & Tùy Chọn Trải Nghiệm</h3>
+                                <p>Tùy chỉnh chủ đề màu sắc sáng/tối và trải nghiệm sử dụng ứng dụng</p>
+                            </div>
+                        </div>
+
+                        <div class="theme-selector-grid">
+                            <div class="theme-card-option active" data-theme="dark">
+                                <i class="fa-solid fa-moon"></i>
+                                <h4>Giao Diện Tối (Dark Mode)</h4>
+                                <p style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">Êm dịu cho mắt khi làm việc buổi tối</p>
+                            </div>
+
+                            <div class="theme-card-option" data-theme="light">
+                                <i class="fa-solid fa-sun" style="color: #F59E0B;"></i>
+                                <h4>Giao Diện Sáng (Light Mode)</h4>
+                                <p style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">Độ tương phản cao ban ngày</p>
+                            </div>
+
+                            <div class="theme-card-option" data-theme="system">
+                                <i class="fa-solid fa-circle-half-stroke" style="color: #06B6D4;"></i>
+                                <h4>Theo Hệ Thống (Auto)</h4>
+                                <p style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">Tự động đổi theo thiết bị của bạn</p>
+                            </div>
+                        </div>
+
+                        <div class="action-box-card">
+                            <div class="action-box-left">
+                                <div class="action-box-icon" style="background: #8B5CF6;">
+                                    <i class="fa-solid fa-table-cells-large"></i>
+                                </div>
+                                <div>
+                                    <h4 style="font-size: 14.5px; font-weight: 700; color: #FFFFFF; margin-bottom: 2px;">Chế Độ Bảng Thu Gọn (Compact Mode)</h4>
+                                    <p style="font-size: 12.5px; color: var(--text-muted);">Giảm khoảng cách dòng bảng để hiển thị nhiều giao dịch hơn trên màn hình.</p>
+                                </div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="action-box-card">
+                            <div class="action-box-left">
+                                <div class="action-box-icon" style="background: #EC4899;">
+                                    <i class="fa-solid fa-volume-high"></i>
+                                </div>
+                                <div>
+                                    <h4 style="font-size: 14.5px; font-weight: 700; color: #FFFFFF; margin-bottom: 2px;">Hiệu Ứng Âm Thanh Thông Báo</h4>
+                                    <p style="font-size: 12.5px; color: var(--text-muted);">Phát âm thanh nhẹ nhàng khi lưu thành công giao dịch hoặc ngân sách mới.</p>
+                                </div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+
+        <!-- =============================================================
+             3. STICKY BOTTOM ACTION BAR
+             ============================================================= -->
+        <footer class="bottom-action-bar">
+            <div class="bottom-bar-left">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>Mọi tùy chọn sẽ được áp dụng ngay lập tức cho toàn bộ tài khoản</span>
+            </div>
+
+            <div class="bottom-bar-middle">
+                Lần sửa đổi gần nhất: Hôm nay lúc 14:32 bởi <?= htmlspecialchars($currentUser['full_name'] ?? 'Nguyễn Văn An') ?>
+            </div>
+
+            <div class="bottom-bar-right">
+                <button type="button" class="btn-cancel" id="btnCancelAll">Hủy bỏ</button>
+                <button type="button" class="btn-save-all" id="btnSaveAll">
+                    <i class="fa-solid fa-check"></i>
+                    <span>Lưu tất cả thay đổi</span>
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- =============================================================
+         4. MODAL: THÊM / CHỈNH SỬA DANH MỤC
+         ============================================================= -->
+    <div class="modal-overlay" id="categoryModalOverlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalCategoryTitle">Thêm Danh Mục Mới</h3>
+                <button type="button" class="modal-close-btn" id="btnCloseCategoryModal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="categoryForm">
+                <input type="hidden" id="formCatId" value="0">
+
+                <div class="modal-body">
+                    <!-- Category Name -->
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label class="form-label" for="formCatName">
+                            <span>Tên danh mục <span style="color: var(--accent-red);">*</span></span>
+                        </label>
+                        <input type="text" class="form-input" id="formCatName" required placeholder="Ví dụ: Ăn uống, Mua sắm, Xăng xe...">
+                    </div>
+
+                    <!-- Type Selection (Chi tiêu vs Thu nhập) -->
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label class="form-label">
+                            <span>Phân loại giao dịch <span style="color: var(--accent-red);">*</span></span>
+                        </label>
+                        <div class="segmented-control">
+                            <div class="segmented-option">
+                                <input type="radio" name="catTypeRadio" id="radioTypeExpense" value="chi_tieu" checked>
+                                <label for="radioTypeExpense">
+                                    <i class="fa-solid fa-arrow-down" style="margin-right: 4px;"></i> Chi tiêu
+                                </label>
+                            </div>
+                            <div class="segmented-option">
+                                <input type="radio" name="catTypeRadio" id="radioTypeIncome" value="thu_nhap">
+                                <label for="radioTypeIncome">
+                                    <i class="fa-solid fa-arrow-up" style="margin-right: 4px;"></i> Thu nhập
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Budget Limit -->
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label class="form-label" for="formCatBudget">
+                            <span>Hạn mức ngân sách tháng (VND)</span>
+                        </label>
+                        <input type="number" class="form-input" id="formCatBudget" min="0" step="50000" placeholder="Ví dụ: 5000000">
+                        <span class="form-hint" id="formCatBudgetHint">0 đ / tháng</span>
+                    </div>
+
+                    <!-- Color Picker -->
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label class="form-label">
+                            <span>Màu sắc nhận diện</span>
+                            <span id="selectedColorCode" style="font-family: monospace; font-size: 12px; color: var(--text-muted);">#4F59E8</span>
+                        </label>
+                        <div class="color-palette-grid" id="colorPalette">
+                            <div class="color-circle-btn selected" data-color="#F97316" style="background-color: #F97316;"></div>
+                            <div class="color-circle-btn" data-color="#3B82F6" style="background-color: #3B82F6;"></div>
+                            <div class="color-circle-btn" data-color="#4F59E8" style="background-color: #4F59E8;"></div>
+                            <div class="color-circle-btn" data-color="#089182" style="background-color: #089182;"></div>
+                            <div class="color-circle-btn" data-color="#9333EA" style="background-color: #9333EA;"></div>
+                            <div class="color-circle-btn" data-color="#A96CA9" style="background-color: #A96CA9;"></div>
+                            <div class="color-circle-btn" data-color="#009488" style="background-color: #009488;"></div>
+                            <div class="color-circle-btn" data-color="#EF4444" style="background-color: #EF4444;"></div>
+                            <div class="color-circle-btn" data-color="#10B981" style="background-color: #10B981;"></div>
+                            <div class="color-circle-btn" data-color="#F59E0B" style="background-color: #F59E0B;"></div>
+                        </div>
+                        <input type="hidden" id="formCatColor" value="#F97316">
+                    </div>
+
+                    <!-- Icon Picker -->
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label class="form-label">
+                            <span>Biểu tượng (Icon)</span>
+                        </label>
+                        <div class="icon-picker-grid" id="iconPicker">
+                            <button type="button" class="icon-option-btn selected" data-icon="fa-utensils"><i class="fa-solid fa-utensils"></i></button>
+                            <button type="button" class="icon-option-btn" data-icon="fa-bag-shopping"><i class="fa-solid fa-bag-shopping"></i></button>
+                            <button type="button" class="icon-option-btn" data-icon="fa-car"><i class="fa-solid fa-car"></i></button>
+                            <button type="button" class="icon-option-btn" data-icon="fa-file-invoice-dollar"><i class="fa-solid fa-file-invoice-dollar"></i></button>
+                            <button type="button" class="icon-option-btn" data-icon="fa-gamepad"><i class="fa-solid fa-gamepad"></i></button>
+                            <button type="button" class="icon-option-btn" data-icon="fa-briefcase"><i class="fa-solid fa-briefcase"></i></button>
+                            <button type="button" class="icon-option-btn" data-icon="fa-chart-line"><i class="fa-solid fa-chart-line"></i></button>
+                            <button type="button" class="icon-option-btn" data-icon="fa-heart-pulse"><i class="fa-solid fa-heart-pulse"></i></button>
+                            <button type="button" class="icon-option-btn" data-icon="fa-house"><i class="fa-solid fa-house"></i></button>
+                            <button type="button" class="icon-option-btn" data-icon="fa-graduation-cap"><i class="fa-solid fa-graduation-cap"></i></button>
+                            <button type="button" class="icon-option-btn" data-icon="fa-plane"><i class="fa-solid fa-plane"></i></button>
+                            <button type="button" class="icon-option-btn" data-icon="fa-film"><i class="fa-solid fa-film"></i></button>
+                            <button type="button" class="icon-option-btn" data-icon="fa-gift"><i class="fa-solid fa-gift"></i></button>
+                            <button type="button" class="icon-option-btn" data-icon="fa-basket-shopping"><i class="fa-solid fa-basket-shopping"></i></button>
+                            <button type="button" class="icon-option-btn" data-icon="fa-mug-hot"><i class="fa-solid fa-mug-hot"></i></button>
+                            <button type="button" class="icon-option-btn" data-icon="fa-shield-halved"><i class="fa-solid fa-shield-halved"></i></button>
+                        </div>
+                        <input type="hidden" id="formCatIcon" value="fa-utensils">
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label class="form-label" for="formCatDesc">
+                            <span>Mô tả chi tiết</span>
+                        </label>
+                        <textarea class="form-textarea" id="formCatDesc" rows="2" placeholder="Ví dụ: Cà phê, nhà hàng, siêu thị, ăn uống gia đình..."></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" id="btnCancelCategoryModal">Hủy bỏ</button>
+                    <button type="submit" class="btn-primary" id="btnSubmitCategoryModal">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>Lưu danh mục</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- =============================================================
+         5. MODAL: CHỈNH SỬA HẠN MỨC NGÂN SÁCH THÁNG
+         ============================================================= -->
+    <div class="modal-overlay" id="budgetModalOverlay">
+        <div class="modal-container" style="max-width: 480px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Chỉnh Sửa Hạn Mức Ngân Sách</h3>
+                <button type="button" class="modal-close-btn" id="btnCloseBudgetModal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="budgetEditForm">
+                <div class="modal-body">
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label class="form-label" for="formTotalBudgetInput">
+                            <span>Hạn mức tổng chi tiêu tháng (VND) <span style="color: var(--accent-red);">*</span></span>
+                        </label>
+                        <input type="number" class="form-input" id="formTotalBudgetInput" min="1000000" step="500000" required value="25000000">
+                        <span class="form-hint" id="formTotalBudgetHint">25.000.000 đ</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="formWarningThresholdInput">
+                            <span>Ngưỡng cảnh báo sớm (%)</span>
+                        </label>
+                        <input type="number" class="form-input" id="formWarningThresholdInput" min="50" max="100" value="80">
+                        <span class="form-hint">Mặc định 80% (Hệ thống sẽ gửi cảnh báo vàng khi đạt mức này)</span>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" id="btnCancelBudgetModal">Hủy</button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fa-solid fa-check"></i>
+                        <span>Cập nhật hạn mức</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- =============================================================
+         6. TOAST CONTAINER
+         ============================================================= -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- =============================================================
+         7. PURE VANILLA JAVASCRIPT APPLICATION CODE
+         ============================================================= -->
+    <script>
+        // State Management
+        const state = {
+            activeTab: 'tab-categories',
+            categoryFilter: 'all',
+            categorySort: 'budget_desc',
+            categories: [],
+            budgetData: {
+                total_budget: 25000000,
+                spent: 13600000,
+                remaining: 11400000,
+                percentage: 54.4
+            },
+            settingsData: {
+                currency: 'VND',
+                number_format: '100.000.000',
+                date_format: 'DD/MM/YYYY',
+                theme: 'light'
+            }
+        };
+
+        // Utility: Show Toast Notification
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast-item ${type}`;
+            const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
+            toast.innerHTML = `
+                <i class="fa-solid ${icon} toast-icon"></i>
+                <span class="toast-text">${message}</span>
+            `;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('hide');
+                setTimeout(() => toast.remove(), 300);
+            }, 3200);
+        }
+
+        // Utility: Format Currency
+        function formatMoney(amount, currency = 'VND') {
+            const num = Math.round(Number(amount) || 0);
+            const formatted = num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            return `${formatted} đ`;
+        }
+
+        // -------------------------------------------------------------
+        // TAB SWITCHING (No page reload)
+        // -------------------------------------------------------------
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+
+        function switchTab(tabId) {
+            tabButtons.forEach(btn => {
+                if (btn.dataset.tab === tabId) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            tabPanes.forEach(pane => {
+                if (pane.id === tabId) {
+                    pane.classList.add('active');
+                } else {
+                    pane.classList.remove('active');
+                }
+            });
+
+            state.activeTab = tabId;
+        }
+
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                switchTab(btn.dataset.tab);
+            });
+        });
+
+        // -------------------------------------------------------------
+        // CATEGORIES MANAGEMENT (TAB 1)
+        // -------------------------------------------------------------
+        const tableBody = document.getElementById('categoriesTableBody');
+        const countAllEl = document.getElementById('countAll');
+        const countExpenseEl = document.getElementById('countExpense');
+        const countIncomeEl = document.getElementById('countIncome');
+        const sortSelect = document.getElementById('sortCategoriesSelect');
+
+        // Fetch categories from API
+        async function fetchCategories() {
+            try {
+                const response = await fetch(`api/categories.php?type=${state.categoryFilter}&sort=${state.categorySort}`);
+                const res = await response.json();
+                if (res.success) {
+                    state.categories = res.data;
+                    if (res.counts) {
+                        countAllEl.textContent = res.counts.all || 0;
+                        countExpenseEl.textContent = res.counts.chi_tieu || 0;
+                        countIncomeEl.textContent = res.counts.thu_nhap || 0;
+                    }
+                    renderCategoriesTable(res.data);
+                }
+            } catch (err) {
+                console.error("Lỗi tải danh mục:", err);
+            }
+        }
+
+        // Render Table Rows
+        function renderCategoriesTable(data) {
+            tableBody.innerHTML = '';
+            if (!data || data.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                            <i class="fa-regular fa-folder-open" style="font-size: 32px; margin-bottom: 10px; display: block;"></i>
+                            Không có danh mục nào trong nhóm này
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            data.forEach(cat => {
+                const tr = document.createElement('tr');
+                const isExpense = cat.type === 'chi_tieu';
+                const badgeClass = isExpense ? 'chi_tieu' : 'thu_nhap';
+                const badgeLabel = isExpense ? 'Chi tiêu' : 'Thu nhập';
+                const badgeIcon = isExpense ? 'fa-arrow-down' : 'fa-arrow-up';
+
+                tr.innerHTML = `
+                    <td>
+                        <div class="cat-info-cell">
+                            <div class="cat-icon-box" style="background-color: ${cat.color};">
+                                <i class="fa-solid ${cat.icon}"></i>
+                            </div>
+                            <div class="cat-details">
+                                <div class="cat-name">${escapeHtml(cat.name)}</div>
+                                <div class="cat-desc" title="${escapeHtml(cat.description || '')}">${escapeHtml(cat.description || 'Chưa có ghi chú mô tả')}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="type-badge ${badgeClass}">
+                            <i class="fa-solid ${badgeIcon}"></i>
+                            ${badgeLabel}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="budget-amount">${cat.budget_formatted || formatMoney(cat.budget)}</span>
+                    </td>
+                    <td>
+                        <div class="color-cell">
+                            <span class="color-dot" style="background-color: ${cat.color};"></span>
+                            <span>${cat.color}</span>
+                        </div>
+                    </td>
+                    <td style="text-align: right;">
+                        <div class="action-cell" style="justify-content: flex-end;">
+                            <button type="button" class="btn-table-action edit" onclick="openEditCategory(${cat.id})" title="Chỉnh sửa">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button type="button" class="btn-table-action delete" onclick="deleteCategory(${cat.id}, '${escapeHtml(cat.name)}')" title="Xóa danh mục">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Filter Buttons
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.categoryFilter = btn.dataset.filter;
+                fetchCategories();
+            });
+        });
+
+        // Sort Select
+        sortSelect.addEventListener('change', () => {
+            state.categorySort = sortSelect.value;
+            fetchCategories();
+        });
+
+        // -------------------------------------------------------------
+        // CATEGORY MODAL (ADD / EDIT)
+        // -------------------------------------------------------------
+        const categoryModalOverlay = document.getElementById('categoryModalOverlay');
+        const btnOpenAddCategoryModal = document.getElementById('btnOpenAddCategoryModal');
+        const btnCloseCategoryModal = document.getElementById('btnCloseCategoryModal');
+        const btnCancelCategoryModal = document.getElementById('btnCancelCategoryModal');
+        const categoryForm = document.getElementById('categoryForm');
+        const modalCategoryTitle = document.getElementById('modalCategoryTitle');
+
+        const formCatId = document.getElementById('formCatId');
+        const formCatName = document.getElementById('formCatName');
+        const radioTypeExpense = document.getElementById('radioTypeExpense');
+        const radioTypeIncome = document.getElementById('radioTypeIncome');
+        const formCatBudget = document.getElementById('formCatBudget');
+        const formCatBudgetHint = document.getElementById('formCatBudgetHint');
+        const formCatColor = document.getElementById('formCatColor');
+        const selectedColorCode = document.getElementById('selectedColorCode');
+        const formCatIcon = document.getElementById('formCatIcon');
+        const formCatDesc = document.getElementById('formCatDesc');
+
+        // Color circles selector
+        const colorCircles = document.querySelectorAll('.color-circle-btn');
+        colorCircles.forEach(circle => {
+            circle.addEventListener('click', () => {
+                colorCircles.forEach(c => c.classList.remove('selected'));
+                circle.classList.add('selected');
+                const color = circle.dataset.color;
+                formCatColor.value = color;
+                selectedColorCode.textContent = color;
+            });
+        });
+
+        // Icon picker buttons
+        const iconButtons = document.querySelectorAll('.icon-option-btn');
+        iconButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                iconButtons.forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                formCatIcon.value = btn.dataset.icon;
+            });
+        });
+
+        // Update budget hint dynamically
+        formCatBudget.addEventListener('input', () => {
+            const val = Number(formCatBudget.value) || 0;
+            formCatBudgetHint.textContent = `${formatMoney(val)} / tháng`;
+        });
+
+        function openAddCategoryModal() {
+            modalCategoryTitle.textContent = 'Thêm Danh Mục Mới';
+            formCatId.value = '0';
+            formCatName.value = '';
+            radioTypeExpense.checked = true;
+            formCatBudget.value = '';
+            formCatBudgetHint.textContent = '0 đ / tháng';
+            formCatDesc.value = '';
+
+            // Reset color
+            formCatColor.value = '#F97316';
+            selectedColorCode.textContent = '#F97316';
+            colorCircles.forEach(c => {
+                c.classList.toggle('selected', c.dataset.color === '#F97316');
+            });
+
+            // Reset icon
+            formCatIcon.value = 'fa-utensils';
+            iconButtons.forEach(b => {
+                b.classList.toggle('selected', b.dataset.icon === 'fa-utensils');
+            });
+
+            categoryModalOverlay.classList.add('active');
+            formCatName.focus();
+        }
+
+        btnOpenAddCategoryModal.addEventListener('click', openAddCategoryModal);
+        btnCloseCategoryModal.addEventListener('click', () => categoryModalOverlay.classList.remove('active'));
+        btnCancelCategoryModal.addEventListener('click', () => categoryModalOverlay.classList.remove('active'));
+
+        // Open edit category modal
+        window.openEditCategory = function(catId) {
+            const cat = state.categories.find(c => c.id === catId);
+            if (!cat) return;
+
+            modalCategoryTitle.textContent = 'Chỉnh Sửa Danh Mục';
+            formCatId.value = cat.id;
+            formCatName.value = cat.name;
+
+            if (cat.type === 'thu_nhap') {
+                radioTypeIncome.checked = true;
+            } else {
+                radioTypeExpense.checked = true;
+            }
+
+            formCatBudget.value = cat.budget || 0;
+            formCatBudgetHint.textContent = `${formatMoney(cat.budget || 0)} / tháng`;
+            formCatDesc.value = cat.description || '';
+
+            // Set color
+            formCatColor.value = cat.color;
+            selectedColorCode.textContent = cat.color;
+            colorCircles.forEach(c => {
+                c.classList.toggle('selected', c.dataset.color.toLowerCase() === cat.color.toLowerCase());
+            });
+
+            // Set icon
+            formCatIcon.value = cat.icon;
+            iconButtons.forEach(b => {
+                b.classList.toggle('selected', b.dataset.icon === cat.icon);
+            });
+
+            categoryModalOverlay.classList.add('active');
+            formCatName.focus();
+        };
+
+        // Submit Category (Add / Edit)
+        categoryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = Number(formCatId.value) || 0;
+            const name = formCatName.value.trim();
+            const type = radioTypeIncome.checked ? 'thu_nhap' : 'chi_tieu';
+            const budget = Number(formCatBudget.value) || 0;
+            const color = formCatColor.value || '#4F59E8';
+            const icon = formCatIcon.value || 'fa-folder';
+            const description = formCatDesc.value.trim();
+
+            if (!name) {
+                showToast('Vui lòng nhập tên danh mục!', 'error');
+                return;
+            }
+
+            const payload = {
+                id,
+                name,
+                type,
+                budget,
+                budget_limit: budget,
+                color,
+                icon,
+                description
+            };
+
+            const method = id > 0 ? 'PUT' : 'POST';
+
+            try {
+                const response = await fetch('api/categories.php', {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const res = await response.json();
+                if (res.success) {
+                    showToast(res.message || 'Thao tác danh mục thành công!', 'success');
+                    categoryModalOverlay.classList.remove('active');
+                    fetchCategories();
+                } else {
+                    showToast(res.message || 'Có lỗi xảy ra!', 'error');
+                }
+            } catch (err) {
+                console.error("Lỗi cập nhật danh mục:", err);
+                showToast('Không thể kết nối máy chủ!', 'error');
+            }
+        });
+
+        // Delete Category
+        window.deleteCategory = async function(catId, catName) {
+            if (!confirm(`Bạn có chắc chắn muốn xóa danh mục "${catName}" không?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`api/categories.php?id=${catId}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const res = await response.json();
+                if (res.success) {
+                    showToast(`Đã xóa danh mục "${catName}" thành công!`, 'success');
+                    fetchCategories();
+                } else {
+                    showToast(res.message || 'Lỗi khi xóa danh mục!', 'error');
+                }
+            } catch (err) {
+                console.error("Lỗi xóa danh mục:", err);
+                showToast('Không thể kết nối máy chủ!', 'error');
+            }
+        };
+
+        // -------------------------------------------------------------
+        // BUDGET & ALERTS (TAB 2)
+        // -------------------------------------------------------------
+        const budgetTotalDisplay = document.getElementById('budgetTotalDisplay');
+        const budgetSpentDisplay = document.getElementById('budgetSpentDisplay');
+        const budgetRemainingDisplay = document.getElementById('budgetRemainingDisplay');
+        const budgetProgressBar = document.getElementById('budgetProgressBar');
+        const disciplineRatingBadge = document.getElementById('disciplineRatingBadge');
+        const disciplineNoteText = document.getElementById('disciplineNoteText');
+        const budgetMonthSelector = document.getElementById('budgetMonthSelector');
+        const toggleWarningYellow = document.getElementById('toggleWarningYellow');
+        const toggleWarningRed = document.getElementById('toggleWarningRed');
+
+        // Budget Modal
+        const budgetModalOverlay = document.getElementById('budgetModalOverlay');
+        const btnEditBudgetLimit = document.getElementById('btnEditBudgetLimit');
+        const btnCloseBudgetModal = document.getElementById('btnCloseBudgetModal');
+        const btnCancelBudgetModal = document.getElementById('btnCancelBudgetModal');
+        const budgetEditForm = document.getElementById('budgetEditForm');
+        const formTotalBudgetInput = document.getElementById('formTotalBudgetInput');
+        const formTotalBudgetHint = document.getElementById('formTotalBudgetHint');
+        const formWarningThresholdInput = document.getElementById('formWarningThresholdInput');
+
+        async function fetchBudget() {
+            const [m, y] = budgetMonthSelector.value.split('-');
+            try {
+                const response = await fetch(`api/budgets.php?month=${m}&year=${y}`);
+                const res = await response.json();
+                if (res.success) {
+                    const data = res.data;
+                    state.budgetData = data;
+                    budgetTotalDisplay.textContent = data.total_budget_formatted || formatMoney(data.total_budget);
+                    budgetSpentDisplay.textContent = `Đã dùng: ${data.spent_formatted} (${data.percentage}%)`;
+                    budgetRemainingDisplay.textContent = `Còn lại: ${data.remaining_formatted}`;
+                    budgetProgressBar.style.width = `${Math.min(100, data.percentage)}%`;
+                    disciplineRatingBadge.textContent = data.discipline_rating || 'Xuất Sắc';
+                    if (data.discipline_desc) {
+                        disciplineNoteText.textContent = data.discipline_desc;
+                    }
+                    toggleWarningYellow.checked = data.warning_yellow;
+                    toggleWarningRed.checked = data.warning_red;
+                    formTotalBudgetInput.value = data.total_budget;
+                    formTotalBudgetHint.textContent = formatMoney(data.total_budget);
+                    formWarningThresholdInput.value = data.warning_threshold;
+                }
+            } catch (err) {
+                console.error("Lỗi tải ngân sách:", err);
+            }
+        }
+
+        budgetMonthSelector.addEventListener('change', fetchBudget);
+
+        btnEditBudgetLimit.addEventListener('click', () => {
+            budgetModalOverlay.classList.add('active');
+            formTotalBudgetInput.focus();
+        });
+
+        btnCloseBudgetModal.addEventListener('click', () => budgetModalOverlay.classList.remove('active'));
+        btnCancelBudgetModal.addEventListener('click', () => budgetModalOverlay.classList.remove('active'));
+
+        formTotalBudgetInput.addEventListener('input', () => {
+            const val = Number(formTotalBudgetInput.value) || 0;
+            formTotalBudgetHint.textContent = formatMoney(val);
+        });
+
+        budgetEditForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const [m, y] = budgetMonthSelector.value.split('-');
+            const totalBudget = Number(formTotalBudgetInput.value) || 25000000;
+            const warningThreshold = Number(formWarningThresholdInput.value) || 80;
+
+            const payload = {
+                month: Number(m),
+                year: Number(y),
+                total_budget: totalBudget,
+                warning_threshold: warningThreshold,
+                warning_yellow: toggleWarningYellow.checked ? 1 : 0,
+                warning_red: toggleWarningRed.checked ? 1 : 0
+            };
+
+            try {
+                const response = await fetch('api/budgets.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const res = await response.json();
+                if (res.success) {
+                    showToast(res.message || 'Cập nhật ngân sách thành công!', 'success');
+                    budgetModalOverlay.classList.remove('active');
+                    fetchBudget();
+                }
+            } catch (err) {
+                showToast('Lỗi cập nhật ngân sách!', 'error');
+            }
+        });
+
+        // -------------------------------------------------------------
+        // CURRENCY & FORMATTINGS (TAB 3)
+        // -------------------------------------------------------------
+        const selectCurrency = document.getElementById('selectCurrency');
+        const selectNumberFormat = document.getElementById('selectNumberFormat');
+        const selectDateFormat = document.getElementById('selectDateFormat');
+        const previewMoney = document.getElementById('previewMoney');
+        const previewSmallMoney = document.getElementById('previewSmallMoney');
+        const previewDate = document.getElementById('previewDate');
+
+        function updateLivePreview() {
+            const cur = selectCurrency.value;
+            const nf = selectNumberFormat.value;
+            const df = selectDateFormat.value;
+
+            let curSymbol = 'đ';
+            if (cur === 'USD') curSymbol = '$';
+            else if (cur === 'EUR') curSymbol = '€';
+            else if (cur === 'JPY') curSymbol = '¥';
+
+            if (nf === '100,000,000') {
+                previewMoney.textContent = `45,000,000 ${curSymbol}`;
+                previewSmallMoney.textContent = `85,000 ${curSymbol}`;
+            } else if (nf === '100 000 000') {
+                previewMoney.textContent = `45 000 000 ${curSymbol}`;
+                previewSmallMoney.textContent = `85 000 ${curSymbol}`;
+            } else {
+                previewMoney.textContent = `45.000.000 ${curSymbol}`;
+                previewSmallMoney.textContent = `85.000 ${curSymbol}`;
+            }
+
+            const today = new Date();
+            const d = String(today.getDate()).padStart(2, '0');
+            const m = String(today.getMonth() + 1).padStart(2, '0');
+            const y = today.getFullYear();
+
+            if (df === 'YYYY-MM-DD') {
+                previewDate.textContent = `${y}-${m}-${d}`;
+            } else if (df === 'MM/DD/YYYY') {
+                previewDate.textContent = `${m}/${d}/${y}`;
+            } else {
+                previewDate.textContent = `${d}/${m}/${y}`;
+            }
+        }
+
+        selectCurrency.addEventListener('change', updateLivePreview);
+        selectNumberFormat.addEventListener('change', updateLivePreview);
+        selectDateFormat.addEventListener('change', updateLivePreview);
+
+        async function fetchSettings() {
+            try {
+                const response = await fetch('api/settings.php');
+                const res = await response.json();
+                if (res.success && res.data) {
+                    state.settingsData = res.data;
+                    selectCurrency.value = res.data.currency || 'VND';
+                    selectNumberFormat.value = res.data.number_format || '100.000.000';
+                    selectDateFormat.value = res.data.date_format || 'DD/MM/YYYY';
+                    updateLivePreview();
+                }
+            } catch (err) {
+                console.error("Lỗi tải cài đặt:", err);
+            }
+        }
+
+        // Theme cards selector in Tab 6
+        const themeCards = document.querySelectorAll('.theme-card-option');
+        themeCards.forEach(card => {
+            card.addEventListener('click', () => {
+                themeCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                state.settingsData.theme = card.dataset.theme;
+                showToast(`Đã chọn chủ đề: ${card.querySelector('h4').textContent}`, 'success');
+            });
+        });
+
+        // -------------------------------------------------------------
+        // SAVE ALL CHANGES (HEADER BUTTON & BOTTOM BAR BUTTON)
+        // -------------------------------------------------------------
+        async function saveAllSettings() {
+            const settingsPayload = {
+                currency: selectCurrency.value,
+                number_format: selectNumberFormat.value,
+                date_format: selectDateFormat.value,
+                theme: state.settingsData.theme || 'light'
+            };
+
+            const [m, y] = budgetMonthSelector.value.split('-');
+            const budgetPayload = {
+                month: Number(m),
+                year: Number(y),
+                total_budget: Number(formTotalBudgetInput.value) || 25000000,
+                warning_threshold: Number(formWarningThresholdInput.value) || 80,
+                warning_yellow: toggleWarningYellow.checked ? 1 : 0,
+                warning_red: toggleWarningRed.checked ? 1 : 0
+            };
+
+            try {
+                // Save settings
+                const p1 = fetch('api/settings.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(settingsPayload)
+                });
+
+                // Save budget
+                const p2 = fetch('api/budgets.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(budgetPayload)
+                });
+
+                await Promise.all([p1, p2]);
+                showToast('Tất cả thay đổi hệ thống đã được lưu thành công!', 'success');
+                fetchBudget();
+                fetchSettings();
+            } catch (err) {
+                console.error("Lỗi lưu cấu hình:", err);
+                showToast('Không thể lưu cài đặt. Vui lòng thử lại!', 'error');
+            }
+        }
+
+        document.getElementById('btnSaveAll').addEventListener('click', saveAllSettings);
+        document.getElementById('btnSaveHeader').addEventListener('click', saveAllSettings);
+
+        document.getElementById('btnCancelAll').addEventListener('click', () => {
+            fetchCategories();
+            fetchBudget();
+            fetchSettings();
+            showToast('Đã khôi phục cài đặt về trạng thái gần nhất', 'success');
+        });
+
+        // Mobile Sidebar Toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        if (mobileMenuBtn && sidebar) {
+            mobileMenuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('mobile-open');
+            });
+        }
+
+        // Global Search
+        const globalSearchInput = document.getElementById('globalSearchInput');
+        if (globalSearchInput) {
+            globalSearchInput.addEventListener('input', () => {
+                const query = globalSearchInput.value.toLowerCase().trim();
+                if (!query) {
+                    renderCategoriesTable(state.categories);
+                    return;
+                }
+                const filtered = state.categories.filter(c => 
+                    c.name.toLowerCase().includes(query) || 
+                    (c.description && c.description.toLowerCase().includes(query))
+                );
+                renderCategoriesTable(filtered);
+            });
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            // Kiểm tra tham số tab trên URL nếu có
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab');
+            if (tabParam && document.getElementById(tabParam)) {
+                switchTab(tabParam);
+            }
+
+            fetchCategories();
+            fetchBudget();
+            fetchSettings();
+        });
+    </script>
+</body>
+</html>
